@@ -179,13 +179,8 @@ export default function AffordabilityGauge() {
         {/* Legend */}
         <div className="mt-4 flex items-center justify-center gap-1 text-xs text-slate-500">
           <div className="flex items-center gap-1">
-            <div className="w-3 h-2 rounded-sm bg-red-500" />
-            <span>Critical</span>
-          </div>
-          <span className="mx-1">→</span>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-2 rounded-sm bg-orange-500" />
-            <span>Poor</span>
+            <div className="w-3 h-2 rounded-sm bg-green-500" />
+            <span>Good</span>
           </div>
           <span className="mx-1">→</span>
           <div className="flex items-center gap-1">
@@ -194,8 +189,13 @@ export default function AffordabilityGauge() {
           </div>
           <span className="mx-1">→</span>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-2 rounded-sm bg-green-500" />
-            <span>Good</span>
+            <div className="w-3 h-2 rounded-sm bg-orange-500" />
+            <span>Poor</span>
+          </div>
+          <span className="mx-1">→</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-2 rounded-sm bg-red-500" />
+            <span>Critical</span>
           </div>
         </div>
 
