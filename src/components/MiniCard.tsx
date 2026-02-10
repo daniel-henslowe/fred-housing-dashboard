@@ -36,7 +36,7 @@ export default function MiniCard({
   return (
     <div
       onClick={onClick}
-      className={`glass-card p-5 gradient-border-top transition-all duration-200 ${
+      className={`glass-card p-5 relative overflow-hidden gradient-border-top transition-all duration-200 ${
         onClick
           ? "cursor-pointer hover:scale-[1.02] hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10"
           : ""
