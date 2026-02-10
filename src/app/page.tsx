@@ -853,16 +853,9 @@ export default function Dashboard() {
               MacroEdge Housing • Powered by FRED • Last updated: Feb 10, 2026
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <input
-              type="text"
-              placeholder="Search metrics..."
-              className="bg-slate-800/80 border border-indigo-500/20 rounded-xl px-4 py-3 w-[280px] text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500/40"
-            />
-            <button className="btn-primary px-6 py-3 rounded-xl font-semibold text-sm">
-              Export Data
-            </button>
-          </div>
+          <button className="btn-primary px-6 py-3 rounded-xl font-semibold text-sm">
+            Export Data
+          </button>
         </header>
 
         {/* KPI Cards */}
