@@ -59,7 +59,7 @@ export default function AffordabilityGauge() {
           {/* SVG Gauge */}
           <svg viewBox="0 0 200 120" className="w-full h-full">
             <defs>
-              {/* Gradient for the arc - red to green */}
+              {/* Gradient for the arc - red (critical/low) to green (good/high) */}
               <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#ef4444" />
                 <stop offset="25%" stopColor="#f97316" />
@@ -127,19 +127,19 @@ export default function AffordabilityGauge() {
               );
             })}
 
-            {/* Needle */}
+            {/* Needle - shortened to not overlap with score */}
             <g
               transform={`rotate(${needleRotation}, 100, 100)`}
               filter="url(#shadow)"
               className="transition-transform duration-100"
             >
               <polygon
-                points="100,45 96,100 104,100"
+                points="100,55 97,95 103,95"
                 fill={getScoreColor(animatedScore)}
                 className="drop-shadow-lg"
               />
-              <circle cx="100" cy="100" r="8" fill={getScoreColor(animatedScore)} />
-              <circle cx="100" cy="100" r="4" fill="#0f172a" />
+              <circle cx="100" cy="95" r="6" fill={getScoreColor(animatedScore)} />
+              <circle cx="100" cy="95" r="3" fill="#0f172a" />
             </g>
 
             {/* Min/Max labels */}
@@ -147,14 +147,15 @@ export default function AffordabilityGauge() {
             <text x="185" y="115" fill="#64748b" fontSize="10" textAnchor="middle">150</text>
           </svg>
 
-          {/* Score display */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
-            <div
-              className="text-5xl font-bold transition-colors duration-300"
-              style={{ color: getScoreColor(animatedScore) }}
-            >
-              {animatedScore.toFixed(1)}
-            </div>
+        </div>
+
+        {/* Score display - below the gauge */}
+        <div className="text-center -mt-2">
+          <div
+            className="text-5xl font-bold transition-colors duration-300"
+            style={{ color: getScoreColor(animatedScore) }}
+          >
+            {animatedScore.toFixed(1)}
           </div>
         </div>
 
