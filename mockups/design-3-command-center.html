@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRED Housing Dashboard - Design 3: Command Center</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #0b0f19;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .dashboard { display: grid; grid-template-columns: 72px 1fr; min-height: 100vh; }
+
+        /* Icon Sidebar */
+        .icon-bar {
+            background: #0f1629;
+            border-right: 1px solid #1e293b;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .icon-logo {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+        .icon-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+        }
+        .icon-btn:hover { background: #1e293b; color: #e2e8f0; }
+        .icon-btn.active { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; }
+        .icon-btn svg { width: 20px; height: 20px; }
+
+        /* Main Area */
+        .main-area { display: flex; flex-direction: column; }
+
+        /* Top Bar */
+        .top-bar {
+            height: 64px;
+            background: #0f1629;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 24px; }
+        .page-title { font-size: 20px; font-weight: 600; }
+        .breadcrumb { font-size: 13px; color: #64748b; }
+        .breadcrumb span { color: #3b82f6; }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .search-input {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 10px 16px;
+            color: #e2e8f0;
+            width: 300px;
+        }
+        .search-input::placeholder { color: #64748b; }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #22c55e;
+        }
+        .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Content */
+        .content { flex: 1; padding: 24px; overflow-y: auto; }
+
+        /* Metric Ticker */
+        .ticker {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .ticker::-webkit-scrollbar { height: 4px; }
+        .ticker::-webkit-scrollbar-track { background: #1e293b; border-radius: 2px; }
+        .ticker::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 2px; }
+        .ticker-item {
+            flex: 0 0 auto;
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 16px 20px;
+            min-width: 180px;
+        }
+        .ticker-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .ticker-value { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+        .ticker-change { font-size: 12px; display: flex; align-items: center; gap: 4px; }
+        .ticker-change.up { color: #22c55e; }
+        .ticker-change.down { color: #ef4444; }
+
+        /* Grid Layout */
+        .grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .grid-secondary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
+        .grid-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        /* Panel */
+        .panel {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .panel-title { font-size: 15px; font-weight: 600; }
+        .panel-actions { display: flex; gap: 8px; }
+        .panel-btn {
+            background: #1e293b;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: #94a3b8;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .panel-btn:hover, .panel-btn.active { background: #3b82f6; color: #fff; }
+        .panel-body { padding: 20px; }
+        .panel-body.flush { padding: 0; }
+
+        /* Chart */
+        .chart-container { height: 300px; position: relative; }
+        .chart-container-sm { height: 200px; position: relative; }
+
+        /* Stats Row */
+        .stats-row { display: flex; gap: 16px; padding: 16px 20px; border-top: 1px solid #1e293b; }
+        .stat-box { flex: 1; text-align: center; }
+        .stat-box-value { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .stat-box-label { font-size: 11px; color: #64748b; text-transform: uppercase; }
+        .stat-box-value.blue { color: #3b82f6; }
+        .stat-box-value.green { color: #22c55e; }
+        .stat-box-value.orange { color: #f59e0b; }
+        .stat-box-value.red { color: #ef4444; }
+
+        /* Radar & Gauge */
+        .radar-container { width: 100%; height: 250px; }
+        .gauge-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .gauge-item { text-align: center; }
+        .gauge-canvas { width: 120px; height: 80px; margin: 0 auto 8px; }
+        .gauge-value { font-size: 28px; font-weight: 700; }
+        .gauge-label { font-size: 12px; color: #64748b; }
+
+        /* Data Grid */
+        .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: #1e293b; }
+        .data-cell {
+            background: #111827;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .data-cell-label { font-size: 13px; color: #94a3b8; }
+        .data-cell-value { font-size: 15px; font-weight: 600; }
+
+        /* List */
+        .metric-list { list-style: none; }
+        .metric-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #1e293b;
+            transition: background 0.2s;
+        }
+        .metric-list-item:hover { background: rgba(59, 130, 246, 0.05); }
+        .metric-list-item:last-child { border-bottom: none; }
+        .metric-rank {
+            width: 28px;
+            height: 28px;
+            background: #1e293b;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .metric-info { flex: 1; }
+        .metric-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+        .metric-desc { font-size: 11px; color: #64748b; }
+        .metric-value-col { text-align: right; }
+        .metric-value-main { font-size: 16px; font-weight: 600; }
+        .metric-value-change { font-size: 12px; }
+        .metric-value-change.up { color: #22c55e; }
+        .metric-value-change.down { color: #ef4444; }
+
+        /* Progress Bars */
+        .progress-list { padding: 20px; }
+        .progress-item { margin-bottom: 20px; }
+        .progress-item:last-child { margin-bottom: 0; }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .progress-bar { height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+        .progress-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .progress-fill.green { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .progress-fill.orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .progress-fill.purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+        /* Mini Sparklines */
+        .spark-cell { width: 80px; height: 30px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="icon-bar">
+            <div class="icon-logo">F</div>
+            <nav class="icon-nav">
+                <button class="icon-btn active">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+                </button>
+                <button class="icon-btn">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </button>
+                <button class="icon-btn">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                </button>
+                <button class="icon-btn">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+                </button>
+                <button class="icon-btn">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                </button>
+            </nav>
+        </aside>
+
+        <div class="main-area">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <div>
+                        <div class="page-title">Housing Market Command Center</div>
+                        <div class="breadcrumb">FRED Data • <span>Real-time Updates</span></div>
+                    </div>
+                </div>
+                <div class="top-bar-right">
+                    <input type="text" class="search-input" placeholder="Search housing metrics...">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        Live Data
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Ticker -->
+                <div class="ticker">
+                    <div class="ticker-item">
+                        <div class="ticker-label">Median Home Price</div>
+                        <div class="ticker-value">$428,700</div>
+                        <div class="ticker-change up">↑ +4.2% YoY</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="ticker-label">Housing Starts</div>
+                        <div class="ticker-value">1.42M</div>
+                        <div class="ticker-change up">↑ +2.8% MoM</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="ticker-label">Building Permits</div>
+                        <div class="ticker-value">1.51M</div>
+                        <div class="ticker-change down">↓ -1.3% MoM</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="ticker-label">30-Yr Mortgage</div>
+                        <div class="ticker-value">6.42%</div>
+                        <div class="ticker-change down">↓ -0.15 pts</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="ticker-label">Case-Shiller Index</div>
+                        <div class="ticker-value">318.4</div>
+                        <div class="ticker-change up">↑ +5.1% YoY</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="ticker-label">New Home Sales</div>
+                        <div class="ticker-value">682K</div>
+                        <div class="ticker-change up">↑ +3.2% MoM</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="ticker-label">Existing Home Sales</div>
+                        <div class="ticker-value">4.09M</div>
+                        <div class="ticker-change down">↓ -1.8% MoM</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="ticker-label">Months Supply</div>
+                        <div class="ticker-value">3.2</div>
+                        <div class="ticker-change up">↑ +0.3</div>
+                    </div>
+                </div>
+
+                <!-- Main Grid -->
+                <div class="grid-main">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Price Index Performance</span>
+                            <div class="panel-actions">
+                                <button class="panel-btn active">1Y</button>
+                                <button class="panel-btn">3Y</button>
+                                <button class="panel-btn">5Y</button>
+                                <button class="panel-btn">Max</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="chart-container">
+                                <canvas id="mainChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="stats-row">
+                            <div class="stat-box">
+                                <div class="stat-box-value blue">+5.1%</div>
+                                <div class="stat-box-label">YoY Change</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value green">318.4</div>
+                                <div class="stat-box-label">Current Index</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value orange">285.2</div>
+                                <div class="stat-box-label">Year Ago</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value">326.8</div>
+                                <div class="stat-box-label">52-Wk High</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Market Health Radar</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="radar-container">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Grid -->
+                <div class="grid-secondary">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Affordability Gauges</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="gauge-row">
+                                <div class="gauge-item">
+                                    <canvas class="gauge-canvas" id="gauge1"></canvas>
+                                    <div class="gauge-value">92.4</div>
+                                    <div class="gauge-label">Affordability Index</div>
+                                </div>
+                                <div class="gauge-item">
+                                    <canvas class="gauge-canvas" id="gauge2"></canvas>
+                                    <div class="gauge-value">65.8%</div>
+                                    <div class="gauge-label">Ownership Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Regional Prices</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="chart-container-sm">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Mortgage Rate Trend</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="chart-container-sm">
+                                <canvas id="mortgageChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Grid -->
+                <div class="grid-bottom">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Top 12 Housing Metrics</span>
+                        </div>
+                        <div class="panel-body flush">
+                            <ul class="metric-list">
+                                <li class="metric-list-item">
+                                    <div class="metric-rank">1</div>
+                                    <div class="metric-info">
+                                        <div class="metric-name">Home Equity Total</div>
+                                        <div class="metric-desc">Aggregate homeowner equity</div>
+                                    </div>
+                                    <div class="metric-value-col">
+                                        <div class="metric-value-main">$32.6T</div>
+                                        <div class="metric-value-change up">+5.8%</div>
+                                    </div>
+                                </li>
+                                <li class="metric-list-item">
+                                    <div class="metric-rank">2</div>
+                                    <div class="metric-info">
+                                        <div class="metric-name">Construction Spending</div>
+                                        <div class="metric-desc">Residential construction</div>
+                                    </div>
+                                    <div class="metric-value-col">
+                                        <div class="metric-value-main">$1.82T</div>
+                                        <div class="metric-value-change up">+2.4%</div>
+                                    </div>
+                                </li>
+                                <li class="metric-list-item">
+                                    <div class="metric-rank">3</div>
+                                    <div class="metric-info">
+                                        <div class="metric-name">15-Year Mortgage Rate</div>
+                                        <div class="metric-desc">Average fixed rate</div>
+                                    </div>
+                                    <div class="metric-value-col">
+                                        <div class="metric-value-main">5.68%</div>
+                                        <div class="metric-value-change down">-0.12</div>
+                                    </div>
+                                </li>
+                                <li class="metric-list-item">
+                                    <div class="metric-rank">4</div>
+                                    <div class="metric-info">
+                                        <div class="metric-name">Pending Home Sales Index</div>
+                                        <div class="metric-desc">Forward-looking indicator</div>
+                                    </div>
+                                    <div class="metric-value-col">
+                                        <div class="metric-value-main">77.8</div>
+                                        <div class="metric-value-change up">+1.2%</div>
+                                    </div>
+                                </li>
+                                <li class="metric-list-item">
+                                    <div class="metric-rank">5</div>
+                                    <div class="metric-info">
+                                        <div class="metric-name">Days on Market</div>
+                                        <div class="metric-desc">Median listing duration</div>
+                                    </div>
+                                    <div class="metric-value-col">
+                                        <div class="metric-value-main">28</div>
+                                        <div class="metric-value-change">±0</div>
+                                    </div>
+                                </li>
+                                <li class="metric-list-item">
+                                    <div class="metric-rank">6</div>
+                                    <div class="metric-info">
+                                        <div class="metric-name">Rental Vacancy Rate</div>
+                                        <div class="metric-desc">National average</div>
+                                    </div>
+                                    <div class="metric-value-col">
+                                        <div class="metric-value-main">6.6%</div>
+                                        <div class="metric-value-change">+0.1%</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Market Indicators</span>
+                        </div>
+                        <div class="progress-list">
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span>Homeownership Rate</span>
+                                    <span>65.8%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill blue" style="width: 65.8%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span>Housing Affordability</span>
+                                    <span>92.4/150</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill green" style="width: 61.6%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span>Inventory Level</span>
+                                    <span>3.2 months</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill orange" style="width: 53.3%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span>Price-to-Rent Ratio</span>
+                                    <span>1.42x</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill purple" style="width: 71%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span>Foreclosure Rate</span>
+                                    <span>0.28%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill green" style="width: 14%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span>Delinquency Rate</span>
+                                    <span>0.85%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill green" style="width: 17%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="data-grid" style="margin-top: 16px; border-radius: 12px; overflow: hidden;">
+                            <div class="data-cell">
+                                <span class="data-cell-label">YoY Price Change</span>
+                                <span class="data-cell-value" style="color: #22c55e">+4.2%</span>
+                            </div>
+                            <div class="data-cell">
+                                <span class="data-cell-label">Sentiment Index</span>
+                                <span class="data-cell-value">68.4</span>
+                            </div>
+                            <div class="data-cell">
+                                <span class="data-cell-label">Lumber Price</span>
+                                <span class="data-cell-value">$482/MBF</span>
+                            </div>
+                            <div class="data-cell">
+                                <span class="data-cell-label">Construction Jobs</span>
+                                <span class="data-cell-value">8.1M</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.borderColor = '#1e293b';
+
+        // Main Chart
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Case-Shiller Index',
+                    data: [290, 295, 300, 305, 308, 312, 315, 318, 320, 318, 316, 318],
+                    borderColor: '#3b82f6',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }, {
+                    label: 'FHFA HPI',
+                    data: [285, 288, 292, 296, 300, 304, 308, 310, 312, 310, 309, 311],
+                    borderColor: '#22c55e',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', align: 'end' } },
+                scales: {
+                    y: { grid: { color: '#1e293b' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Radar Chart
+        new Chart(document.getElementById('radarChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Price Growth', 'Inventory', 'Affordability', 'Sales Volume', 'Construction', 'Mortgage Rates'],
+                datasets: [{
+                    label: 'Current',
+                    data: [75, 45, 60, 65, 70, 55],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    pointBackgroundColor: '#3b82f6'
+                }, {
+                    label: 'Year Ago',
+                    data: [70, 55, 70, 72, 65, 60],
+                    borderColor: '#64748b',
+                    backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                    pointBackgroundColor: '#64748b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    r: {
+                        grid: { color: '#1e293b' },
+                        angleLines: { color: '#1e293b' },
+                        ticks: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Gauges
+        const gaugeConfig = (value, max, color) => ({
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [value, max - value],
+                    backgroundColor: [color, '#1e293b'],
+                    borderWidth: 0,
+                    circumference: 180,
+                    rotation: 270
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+
+        new Chart(document.getElementById('gauge1'), gaugeConfig(92.4, 150, '#3b82f6'));
+        new Chart(document.getElementById('gauge2'), gaugeConfig(65.8, 100, '#22c55e'));
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Northeast', 'Midwest', 'South', 'West'],
+                datasets: [{
+                    data: [485, 312, 378, 598],
+                    backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: '#1e293b' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Mortgage Chart
+        new Chart(document.getElementById('mortgageChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+                datasets: [{
+                    label: '30-Year',
+                    data: [6.8, 6.75, 6.7, 6.65, 6.55, 6.5, 6.45, 6.42],
+                    borderColor: '#3b82f6',
+                    tension: 0.4,
+                    pointRadius: 0
+                }, {
+                    label: '15-Year',
+                    data: [6.1, 6.05, 6.0, 5.95, 5.85, 5.8, 5.72, 5.68],
+                    borderColor: '#22c55e',
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    y: { grid: { color: '#1e293b' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

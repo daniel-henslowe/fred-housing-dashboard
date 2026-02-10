@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRED Housing Dashboard - Design Mockups</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 48px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #6366f1 0%, #14b8a6 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 32px;
+        }
+
+        .card {
+            background: #141414;
+            border: 1px solid #262626;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: #404040;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .preview {
+            aspect-ratio: 16/10;
+            background: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+        }
+        .preview iframe {
+            width: 200%;
+            height: 200%;
+            transform: scale(0.5);
+            transform-origin: top left;
+            border: none;
+            pointer-events: none;
+        }
+        .preview-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.8) 100%);
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+        .design-number {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .design-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .design-desc {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .feature {
+            background: #262626;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #a3a3a3;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 1px solid #262626;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FRED Housing Dashboard</h1>
+            <p class="subtitle">5 unique dark-themed dashboard designs for visualizing regional housing data from the Federal Reserve Economic Data (FRED) API</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <div class="preview">
+                    <iframe src="mockups/design-1-classic-grid.html"></iframe>
+                    <div class="preview-overlay"></div>
+                </div>
+                <div class="card-body">
+                    <div class="design-number">Design 01</div>
+                    <h2 class="design-title">Classic Grid</h2>
+                    <p class="design-desc">A traditional sidebar dashboard layout with KPI cards, area charts, bar graphs, and progress indicators. Deep navy blue color scheme with purple accents.</p>
+                    <div class="features">
+                        <span class="feature">Sidebar Navigation</span>
+                        <span class="feature">KPI Cards</span>
+                        <span class="feature">Area Charts</span>
+                        <span class="feature">Progress Bars</span>
+                        <span class="feature">Data Tables</span>
+                    </div>
+                    <a href="mockups/design-1-classic-grid.html" class="btn">View Design →</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="preview">
+                    <iframe src="mockups/design-2-glassmorphism.html"></iframe>
+                    <div class="preview-overlay"></div>
+                </div>
+                <div class="card-body">
+                    <div class="design-number">Design 02</div>
+                    <h2 class="design-title">Glassmorphism</h2>
+                    <p class="design-desc">Modern frosted glass aesthetic with animated gradient backgrounds, translucent cards, and a vibrant purple-cyan color palette.</p>
+                    <div class="features">
+                        <span class="feature">Glass Effect</span>
+                        <span class="feature">Animated BG</span>
+                        <span class="feature">Donut Charts</span>
+                        <span class="feature">Heat Map</span>
+                        <span class="feature">Sparklines</span>
+                    </div>
+                    <a href="mockups/design-2-glassmorphism.html" class="btn">View Design →</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="preview">
+                    <iframe src="mockups/design-3-command-center.html"></iframe>
+                    <div class="preview-overlay"></div>
+                </div>
+                <div class="card-body">
+                    <div class="design-number">Design 03</div>
+                    <h2 class="design-title">Command Center</h2>
+                    <p class="design-desc">Data-dense control room style with a minimal icon sidebar, live ticker, radar charts, and gauge visualizations. Professional blue-gray theme.</p>
+                    <div class="features">
+                        <span class="feature">Icon Sidebar</span>
+                        <span class="feature">Live Ticker</span>
+                        <span class="feature">Radar Chart</span>
+                        <span class="feature">Gauges</span>
+                        <span class="feature">Ranked Lists</span>
+                    </div>
+                    <a href="mockups/design-3-command-center.html" class="btn">View Design →</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="preview">
+                    <iframe src="mockups/design-4-bento.html"></iframe>
+                    <div class="preview-overlay"></div>
+                </div>
+                <div class="card-body">
+                    <div class="design-number">Design 04</div>
+                    <h2 class="design-title">Bento Grid</h2>
+                    <p class="design-desc">Apple-inspired asymmetric bento box layout with varied card sizes, warm amber accents, and elegant rounded corners throughout.</p>
+                    <div class="features">
+                        <span class="feature">Bento Layout</span>
+                        <span class="feature">Amber Accents</span>
+                        <span class="feature">Accent Borders</span>
+                        <span class="feature">Region Bars</span>
+                        <span class="feature">Rate Compare</span>
+                    </div>
+                    <a href="mockups/design-4-bento.html" class="btn">View Design →</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="preview">
+                    <iframe src="mockups/design-5-fintech.html"></iframe>
+                    <div class="preview-overlay"></div>
+                </div>
+                <div class="card-body">
+                    <div class="design-number">Design 05</div>
+                    <h2 class="design-title">Fintech</h2>
+                    <p class="design-desc">Clean, modern financial app aesthetic with teal accents, comprehensive data tables, and a polished professional sidebar navigation.</p>
+                    <div class="features">
+                        <span class="feature">Fintech Style</span>
+                        <span class="feature">Teal Accents</span>
+                        <span class="feature">Data Tables</span>
+                        <span class="feature">Status Badges</span>
+                        <span class="feature">Full Sidebar</span>
+                    </div>
+                    <a href="mockups/design-5-fintech.html" class="btn">View Design →</a>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>FRED Housing Dashboard Mockups • Built with HTML, CSS & Chart.js</p>
+        </footer>
+    </div>
+</body>
+</html>

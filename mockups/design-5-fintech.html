@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRED Housing Dashboard - Design 5: Fintech</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #0d0d0d;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #141414;
+            border-right: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #222;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .logo-text { font-size: 20px; font-weight: 700; }
+        .logo-text span { color: #14b8a6; }
+
+        .sidebar-nav { padding: 16px 12px; flex: 1; }
+        .nav-group { margin-bottom: 24px; }
+        .nav-group-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+        .nav-link:hover { background: #1a1a1a; color: #fff; }
+        .nav-link.active {
+            background: rgba(20, 184, 166, 0.1);
+            color: #14b8a6;
+        }
+        .nav-link svg { width: 20px; height: 20px; }
+        .nav-badge {
+            margin-left: auto;
+            background: #14b8a6;
+            color: #000;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #222;
+        }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .user-name { font-size: 14px; font-weight: 500; }
+        .user-role { font-size: 12px; color: #666; }
+
+        /* Main Content */
+        .main { flex: 1; display: flex; flex-direction: column; }
+
+        /* Top Bar */
+        .topbar {
+            height: 72px;
+            background: #141414;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 24px; }
+        .page-title { font-size: 22px; font-weight: 600; }
+        .topbar-tabs { display: flex; gap: 4px; }
+        .tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+        }
+        .tab:hover { color: #fff; }
+        .tab.active { background: #14b8a6; color: #000; font-weight: 500; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .search-bar {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: #fff;
+            width: 320px;
+        }
+        .search-bar::placeholder { color: #666; }
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .icon-btn:hover { border-color: #14b8a6; color: #14b8a6; }
+
+        /* Content Area */
+        .content { flex: 1; padding: 32px; overflow-y: auto; }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .stat-card:hover::after { opacity: 1; }
+        .stat-card[data-accent="teal"] { --accent: #14b8a6; }
+        .stat-card[data-accent="blue"] { --accent: #3b82f6; }
+        .stat-card[data-accent="purple"] { --accent: #8b5cf6; }
+        .stat-card[data-accent="rose"] { --accent: #f43f5e; }
+        .stat-card[data-accent="amber"] { --accent: #f59e0b; }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .stat-label { font-size: 13px; color: #666; }
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .stat-trend.up { color: #14b8a6; }
+        .stat-trend.down { color: #f43f5e; }
+        .stat-value { font-size: 28px; font-weight: 700; }
+
+        /* Main Grid */
+        .grid-main {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Card */
+        .card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #222;
+        }
+        .card-title { font-size: 16px; font-weight: 600; }
+        .card-actions { display: flex; gap: 8px; }
+        .period-btn {
+            background: transparent;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .period-btn:hover, .period-btn.active {
+            border-color: #14b8a6;
+            color: #14b8a6;
+        }
+        .card-body { padding: 24px; }
+        .card-body.flush { padding: 0; }
+
+        .chart-container { height: 320px; position: relative; }
+        .chart-container-sm { height: 200px; position: relative; }
+
+        /* Right Panel */
+        .right-cards { display: flex; flex-direction: column; gap: 24px; }
+
+        /* Pie Stats */
+        .pie-container { display: flex; align-items: center; gap: 24px; }
+        .pie-chart { width: 160px; height: 160px; position: relative; }
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .pie-value { font-size: 24px; font-weight: 700; }
+        .pie-label { font-size: 11px; color: #666; }
+        .pie-legend { flex: 1; }
+        .legend-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+        .legend-color { width: 8px; height: 8px; border-radius: 2px; }
+        .legend-name { flex: 1; font-size: 13px; color: #888; }
+        .legend-pct { font-size: 14px; font-weight: 600; }
+
+        /* Live Rates */
+        .rate-list { }
+        .rate-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #222;
+        }
+        .rate-item:last-child { border-bottom: none; }
+        .rate-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 18px;
+        }
+        .rate-icon.teal { background: rgba(20, 184, 166, 0.1); color: #14b8a6; }
+        .rate-icon.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .rate-info { flex: 1; }
+        .rate-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+        .rate-desc { font-size: 12px; color: #666; }
+        .rate-data { text-align: right; }
+        .rate-value { font-size: 18px; font-weight: 700; }
+        .rate-change { font-size: 12px; }
+        .rate-change.down { color: #14b8a6; }
+        .rate-change.up { color: #f43f5e; }
+
+        /* Bottom Grid */
+        .grid-bottom {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Mini Card */
+        .mini-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .mini-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .mini-label { font-size: 13px; color: #666; }
+        .mini-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .mini-badge.up { background: rgba(20, 184, 166, 0.15); color: #14b8a6; }
+        .mini-badge.down { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+        .mini-badge.neutral { background: rgba(102, 102, 102, 0.15); color: #888; }
+        .mini-value { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .mini-chart { height: 60px; }
+
+        /* Full Width Table */
+        .data-card { margin-bottom: 24px; }
+        .data-table { width: 100%; }
+        .data-table th {
+            text-align: left;
+            padding: 14px 24px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            background: #0d0d0d;
+        }
+        .data-table td { padding: 16px 24px; border-bottom: 1px solid #222; }
+        .data-table tr:hover td { background: rgba(20, 184, 166, 0.02); }
+        .metric-name-cell { display: flex; align-items: center; gap: 12px; }
+        .metric-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .metric-dot.teal { background: #14b8a6; }
+        .metric-dot.blue { background: #3b82f6; }
+        .metric-dot.purple { background: #8b5cf6; }
+        .metric-dot.amber { background: #f59e0b; }
+        .metric-dot.rose { background: #f43f5e; }
+        .metric-spark { width: 100px; height: 30px; }
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .trend-badge.up { background: rgba(20, 184, 166, 0.15); color: #14b8a6; }
+        .trend-badge.down { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+        .trend-badge.neutral { background: rgba(102, 102, 102, 0.15); color: #888; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-mark">F</div>
+                    <div class="logo-text">FRED<span>Housing</span></div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <div class="nav-group-title">Overview</div>
+                    <div class="nav-link active">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+                        Dashboard
+                        <span class="nav-badge">Live</span>
+                    </div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        Analytics
+                    </div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                        Regional Data
+                    </div>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">Metrics</div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+                        Home Prices
+                    </div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/></svg>
+                        Construction
+                    </div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+                        Mortgage Rates
+                    </div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+                        Sales Data
+                    </div>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">Settings</div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                        Preferences
+                    </div>
+                    <div class="nav-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                        Help Center
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">DH</div>
+                    <div>
+                        <div class="user-name">Daniel H.</div>
+                        <div class="user-role">Pro Account</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 class="page-title">Market Overview</h1>
+                    <div class="topbar-tabs">
+                        <button class="tab active">All</button>
+                        <button class="tab">National</button>
+                        <button class="tab">Regional</button>
+                        <button class="tab">Metro</button>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <input type="text" class="search-bar" placeholder="Search metrics...">
+                    <button class="icon-btn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+                    </button>
+                    <button class="icon-btn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card" data-accent="teal">
+                        <div class="stat-header">
+                            <span class="stat-label">Median Home Price</span>
+                            <span class="stat-trend up">↑ +4.2%</span>
+                        </div>
+                        <div class="stat-value">$428,700</div>
+                    </div>
+                    <div class="stat-card" data-accent="blue">
+                        <div class="stat-header">
+                            <span class="stat-label">Housing Starts</span>
+                            <span class="stat-trend up">↑ +2.8%</span>
+                        </div>
+                        <div class="stat-value">1.42M</div>
+                    </div>
+                    <div class="stat-card" data-accent="purple">
+                        <div class="stat-header">
+                            <span class="stat-label">Building Permits</span>
+                            <span class="stat-trend down">↓ -1.3%</span>
+                        </div>
+                        <div class="stat-value">1.51M</div>
+                    </div>
+                    <div class="stat-card" data-accent="rose">
+                        <div class="stat-header">
+                            <span class="stat-label">30-Yr Mortgage</span>
+                            <span class="stat-trend down">↓ -0.15</span>
+                        </div>
+                        <div class="stat-value">6.42%</div>
+                    </div>
+                    <div class="stat-card" data-accent="amber">
+                        <div class="stat-header">
+                            <span class="stat-label">Case-Shiller</span>
+                            <span class="stat-trend up">↑ +5.1%</span>
+                        </div>
+                        <div class="stat-value">318.4</div>
+                    </div>
+                </div>
+
+                <!-- Main Grid -->
+                <div class="grid-main">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Price Index Trends</span>
+                            <div class="card-actions">
+                                <button class="period-btn active">1Y</button>
+                                <button class="period-btn">3Y</button>
+                                <button class="period-btn">5Y</button>
+                                <button class="period-btn">Max</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="mainChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-cards">
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">Regional Share</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="pie-container">
+                                    <div class="pie-chart">
+                                        <canvas id="pieChart"></canvas>
+                                        <div class="pie-center">
+                                            <div class="pie-value">4</div>
+                                            <div class="pie-label">Regions</div>
+                                        </div>
+                                    </div>
+                                    <div class="pie-legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #14b8a6"></div>
+                                            <span class="legend-name">West</span>
+                                            <span class="legend-pct">32%</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #3b82f6"></div>
+                                            <span class="legend-name">South</span>
+                                            <span class="legend-pct">28%</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #8b5cf6"></div>
+                                            <span class="legend-name">Northeast</span>
+                                            <span class="legend-pct">22%</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #f59e0b"></div>
+                                            <span class="legend-name">Midwest</span>
+                                            <span class="legend-pct">18%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">Current Rates</span>
+                            </div>
+                            <div class="card-body flush">
+                                <div class="rate-list">
+                                    <div class="rate-item">
+                                        <div class="rate-icon teal">📊</div>
+                                        <div class="rate-info">
+                                            <div class="rate-name">30-Year Fixed</div>
+                                            <div class="rate-desc">Average rate</div>
+                                        </div>
+                                        <div class="rate-data">
+                                            <div class="rate-value">6.42%</div>
+                                            <div class="rate-change down">↓ -0.15</div>
+                                        </div>
+                                    </div>
+                                    <div class="rate-item">
+                                        <div class="rate-icon blue">📈</div>
+                                        <div class="rate-info">
+                                            <div class="rate-name">15-Year Fixed</div>
+                                            <div class="rate-desc">Average rate</div>
+                                        </div>
+                                        <div class="rate-data">
+                                            <div class="rate-value">5.68%</div>
+                                            <div class="rate-change down">↓ -0.12</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mini Cards -->
+                <div class="grid-bottom">
+                    <div class="mini-card">
+                        <div class="mini-header">
+                            <span class="mini-label">New Home Sales</span>
+                            <span class="mini-badge up">+3.2%</span>
+                        </div>
+                        <div class="mini-value">682K</div>
+                        <div class="mini-chart">
+                            <canvas id="mini1"></canvas>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-header">
+                            <span class="mini-label">Existing Home Sales</span>
+                            <span class="mini-badge down">-1.8%</span>
+                        </div>
+                        <div class="mini-value">4.09M</div>
+                        <div class="mini-chart">
+                            <canvas id="mini2"></canvas>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-header">
+                            <span class="mini-label">Months Supply</span>
+                            <span class="mini-badge up">+0.3</span>
+                        </div>
+                        <div class="mini-value">3.2</div>
+                        <div class="mini-chart">
+                            <canvas id="mini3"></canvas>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-header">
+                            <span class="mini-label">Days on Market</span>
+                            <span class="mini-badge neutral">±0</span>
+                        </div>
+                        <div class="mini-value">28</div>
+                        <div class="mini-chart">
+                            <canvas id="mini4"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="card data-card">
+                    <div class="card-header">
+                        <span class="card-title">All Housing Metrics</span>
+                        <div class="card-actions">
+                            <button class="period-btn">Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="card-body flush">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Current Value</th>
+                                    <th>Trend (6M)</th>
+                                    <th>Change</th>
+                                    <th>Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="metric-name-cell"><div class="metric-dot teal"></div>Construction Spending</div></td>
+                                    <td>$1.82T</td>
+                                    <td><canvas class="metric-spark" id="ts1"></canvas></td>
+                                    <td><span class="trend-badge up">+2.4%</span></td>
+                                    <td>Feb 10</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="metric-name-cell"><div class="metric-dot blue"></div>Home Equity Total</div></td>
+                                    <td>$32.6T</td>
+                                    <td><canvas class="metric-spark" id="ts2"></canvas></td>
+                                    <td><span class="trend-badge up">+5.8%</span></td>
+                                    <td>Feb 10</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="metric-name-cell"><div class="metric-dot purple"></div>Pending Home Sales</div></td>
+                                    <td>77.8</td>
+                                    <td><canvas class="metric-spark" id="ts3"></canvas></td>
+                                    <td><span class="trend-badge up">+1.2%</span></td>
+                                    <td>Feb 10</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="metric-name-cell"><div class="metric-dot amber"></div>Homeownership Rate</div></td>
+                                    <td>65.8%</td>
+                                    <td><canvas class="metric-spark" id="ts4"></canvas></td>
+                                    <td><span class="trend-badge neutral">+0.1%</span></td>
+                                    <td>Feb 10</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="metric-name-cell"><div class="metric-dot rose"></div>Foreclosure Rate</div></td>
+                                    <td>0.28%</td>
+                                    <td><canvas class="metric-spark" id="ts5"></canvas></td>
+                                    <td><span class="trend-badge down">-0.02</span></td>
+                                    <td>Feb 10</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="metric-name-cell"><div class="metric-dot teal"></div>Rental Vacancy Rate</div></td>
+                                    <td>6.6%</td>
+                                    <td><canvas class="metric-spark" id="ts6"></canvas></td>
+                                    <td><span class="trend-badge neutral">+0.1%</span></td>
+                                    <td>Feb 10</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        Chart.defaults.color = '#666';
+        Chart.defaults.borderColor = '#222';
+
+        // Main Chart
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+        gradient.addColorStop(0, 'rgba(20, 184, 166, 0.4)');
+        gradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Case-Shiller Index',
+                    data: [290, 295, 300, 305, 308, 312, 315, 318, 320, 318, 316, 318],
+                    borderColor: '#14b8a6',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }, {
+                    label: 'FHFA HPI',
+                    data: [285, 288, 292, 296, 300, 304, 308, 310, 312, 310, 309, 311],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true } } },
+                scales: {
+                    y: { grid: { color: '#222' } },
+                    x: { grid: { display: false } }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['West', 'South', 'Northeast', 'Midwest'],
+                datasets: [{
+                    data: [32, 28, 22, 18],
+                    backgroundColor: ['#14b8a6', '#3b82f6', '#8b5cf6', '#f59e0b'],
+                    borderWidth: 0,
+                    spacing: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Mini Charts
+        const miniConfig = (data, color) => ({
+            type: 'line',
+            data: {
+                labels: data.map((_, i) => i),
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+
+        new Chart(document.getElementById('mini1'), miniConfig([620, 635, 650, 648, 660, 670, 665, 675, 680, 682], '#14b8a6'));
+        new Chart(document.getElementById('mini2'), miniConfig([4.2, 4.15, 4.1, 4.05, 4.08, 4.12, 4.1, 4.08, 4.05, 4.09], '#f43f5e'));
+        new Chart(document.getElementById('mini3'), miniConfig([2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.0, 3.1, 3.15, 3.2], '#14b8a6'));
+        new Chart(document.getElementById('mini4'), miniConfig([30, 29, 28, 27, 26, 27, 28, 28, 28, 28], '#666'));
+
+        // Table Sparklines
+        const sparkConfig = (data, color) => ({
+            type: 'line',
+            data: {
+                labels: data.map((_, i) => i),
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+
+        new Chart(document.getElementById('ts1'), sparkConfig([1.72, 1.74, 1.76, 1.78, 1.80, 1.82], '#14b8a6'));
+        new Chart(document.getElementById('ts2'), sparkConfig([30, 30.5, 31, 31.5, 32, 32.6], '#3b82f6'));
+        new Chart(document.getElementById('ts3'), sparkConfig([74, 75, 76, 76.5, 77, 77.8], '#8b5cf6'));
+        new Chart(document.getElementById('ts4'), sparkConfig([65.5, 65.6, 65.6, 65.7, 65.7, 65.8], '#f59e0b'));
+        new Chart(document.getElementById('ts5'), sparkConfig([0.32, 0.30, 0.29, 0.29, 0.28, 0.28], '#14b8a6'));
+        new Chart(document.getElementById('ts6'), sparkConfig([6.5, 6.5, 6.6, 6.5, 6.6, 6.6], '#666'));
+    </script>
+</body>
+</html>
