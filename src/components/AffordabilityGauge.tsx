@@ -98,11 +98,9 @@ export default function AffordabilityGauge() {
               strokeWidth="16"
               strokeLinecap="round"
               filter="url(#glow)"
-              className={`transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
               style={{
                 strokeDasharray: "251.2",
-                strokeDashoffset: isVisible ? 251.2 - (animatedScore / 100) * 251.2 : 251.2,
-                transition: "stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                strokeDashoffset: 251.2 - (animatedScore / 100) * 251.2,
               }}
             />
 
@@ -131,7 +129,6 @@ export default function AffordabilityGauge() {
             <g
               transform={`rotate(${needleRotation}, 100, 100)`}
               filter="url(#shadow)"
-              className="transition-transform duration-100"
             >
               <polygon
                 points="100,55 97,95 103,95"
