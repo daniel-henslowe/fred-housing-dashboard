@@ -22,9 +22,9 @@ A comprehensive real-time housing market analytics dashboard powered by FRED (Fe
 - **Hosting:** Cloudflare Pages
 - **Data Source:** FRED API
 
-## Screenshots
+## Screenshot
 
-![Dashboard Overview](https://macroedge-housing.pages.dev)
+![MacroEdge Housing Dashboard](public/screenshot.png)
 
 ## License
 
