@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 type MetricType = "medianPrice" | "yoyChange" | "inventory" | "daysOnMarket";
 
@@ -52,8 +52,20 @@ const getHeatColor = (value: number, metric: MetricType): string => {
 
 export default function HeatMapGrid() {
   const [selectedMetric, setSelectedMetric] = useState<MetricType>("medianPrice");
+  const [hoveredCell, setHoveredCell] = useState<CellData | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
   const currentMetricConfig = metrics.find((m) => m.key === selectedMetric)!;
+
+  const handleMouseEnter = (cell: CellData, e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
+    setHoveredCell(cell);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredCell(null);
+  };
 
   return (
     <div className="glass-card p-6">
@@ -91,12 +103,11 @@ export default function HeatMapGrid() {
                   ? `${getHeatColor(cell[selectedMetric], selectedMetric)} hover:scale-110 cursor-pointer`
                   : "bg-transparent"
               }`}
-              title={cell ? `${cell.state}: ${currentMetricConfig.format(cell[selectedMetric])}` : ""}
+              onMouseEnter={cell ? (e) => handleMouseEnter(cell, e) : undefined}
+              onMouseLeave={handleMouseLeave}
             >
               {cell && (
-                <>
-                  <span className="font-bold">{cell.state}</span>
-                </>
+                <span className="font-bold">{cell.state}</span>
               )}
             </div>
           ))}
@@ -118,6 +129,24 @@ export default function HeatMapGrid() {
           </span>
         </div>
       </div>
+
+      {/* Custom Tooltip */}
+      {hoveredCell && (
+        <div
+          className="fixed z-50 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl pointer-events-none"
+          style={{
+            left: tooltipPos.x,
+            top: tooltipPos.y - 10,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          <div className="font-bold text-white mb-1">{hoveredCell.state}</div>
+          <div className="text-slate-300">Median Price: <span className="text-white">${hoveredCell.medianPrice}K</span></div>
+          <div className="text-slate-300">YoY Change: <span className="text-white">{hoveredCell.yoyChange > 0 ? "+" : ""}{hoveredCell.yoyChange}%</span></div>
+          <div className="text-slate-300">Inventory: <span className="text-white">{hoveredCell.inventory} mo</span></div>
+          <div className="text-slate-300">Days on Market: <span className="text-white">{hoveredCell.daysOnMarket}</span></div>
+        </div>
+      )}
     </div>
   );
 }

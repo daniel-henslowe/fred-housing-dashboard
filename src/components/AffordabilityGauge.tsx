@@ -27,15 +27,15 @@ export default function AffordabilityGauge() {
     requestAnimationFrame(animate);
   }, []);
 
-  // Calculate needle rotation (-135deg to 135deg for 270deg arc)
-  const needleRotation = -135 + (animatedScore / 100) * 270;
+  // Calculate needle rotation (-135deg to 135deg for 270deg arc) - 0-150 scale
+  const needleRotation = -135 + (animatedScore / 150) * 270;
 
-  // Get color based on score (lower = better/green, higher = worse/red) - 0-100 scale
+  // Get color based on score (lower = better/green, higher = worse/red) - 0-150 scale
   const getScoreColor = (s: number) => {
     if (s <= 25) return "#22c55e";
     if (s <= 50) return "#84cc16";
     if (s <= 70) return "#eab308";
-    if (s <= 85) return "#f97316";
+    if (s <= 90) return "#f97316";
     return "#ef4444";
   };
 
@@ -43,7 +43,7 @@ export default function AffordabilityGauge() {
     if (s <= 25) return "Excellent";
     if (s <= 50) return "Good";
     if (s <= 70) return "Fair";
-    if (s <= 85) return "Poor";
+    if (s <= 90) return "Poor";
     return "Critical";
   };
 
@@ -81,32 +81,31 @@ export default function AffordabilityGauge() {
               </filter>
             </defs>
 
-            {/* Background arc */}
+            {/* Background arc - 270 degree arc */}
             <path
-              d="M 20 100 A 80 80 0 0 1 180 100"
+              d="M 30 130 A 70 70 0 1 1 170 130"
               fill="none"
               stroke="#1e293b"
-              strokeWidth="16"
+              strokeWidth="14"
               strokeLinecap="round"
             />
 
-            {/* Colored arc with gradient */}
+            {/* Colored arc with gradient - 270 degree arc */}
             <path
-              d="M 20 100 A 80 80 0 0 1 180 100"
+              d="M 30 130 A 70 70 0 1 1 170 130"
               fill="none"
               stroke="url(#gaugeGradient)"
-              strokeWidth="16"
+              strokeWidth="14"
               strokeLinecap="round"
               filter="url(#glow)"
               style={{
-                strokeDasharray: "251.2",
-                strokeDashoffset: 251.2 - (animatedScore / 100) * 251.2,
+                strokeDasharray: `${(animatedScore / 150) * 330} 330`,
               }}
             />
 
             {/* Tick marks */}
-            {[0, 20, 40, 60, 80, 100].map((tick, i) => {
-              const angle = (-135 + (tick / 100) * 270) * (Math.PI / 180);
+            {[0, 30, 60, 90, 120, 150].map((tick, i) => {
+              const angle = (-135 + (tick / 150) * 270) * (Math.PI / 180);
               const x1 = 100 + 65 * Math.cos(angle);
               const y1 = 100 + 65 * Math.sin(angle);
               const x2 = 100 + 72 * Math.cos(angle);
@@ -141,7 +140,7 @@ export default function AffordabilityGauge() {
 
             {/* Min/Max labels */}
             <text x="15" y="115" fill="#64748b" fontSize="10" textAnchor="middle">0</text>
-            <text x="185" y="115" fill="#64748b" fontSize="10" textAnchor="middle">100</text>
+            <text x="185" y="115" fill="#64748b" fontSize="10" textAnchor="middle">150</text>
           </svg>
 
         </div>
