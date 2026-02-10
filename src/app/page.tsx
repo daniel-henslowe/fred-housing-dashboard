@@ -850,7 +850,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-2xl font-bold">Housing Market Dashboard</h1>
             <p className="text-slate-400 mt-1">
-              FRED Regional Housing Data • Last updated: Feb 10, 2026
+              MacroEdge Housing • Powered by FRED • Last updated: Feb 10, 2026
             </p>
           </div>
           <div className="flex items-center gap-4">

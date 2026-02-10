@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   HomeIcon,
@@ -46,11 +47,22 @@ export default function Sidebar() {
     <aside className="w-[260px] h-screen fixed left-0 top-0 bg-gradient-to-b from-slate-900/95 to-slate-950/98 border-r border-indigo-500/10 p-6 overflow-y-auto">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-3 px-3 mb-8">
-        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center font-bold text-lg">
-          F
+        <div className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-indigo-500/30">
+          <Image
+            src="/macroedge-logo.jpg"
+            alt="MacroEdge Logo"
+            width={44}
+            height={44}
+            className="w-full h-full object-cover"
+          />
         </div>
-        <div className="text-xl font-bold">
-          FRED<span className="text-indigo-500">Housing</span>
+        <div>
+          <div className="text-lg font-bold leading-tight">
+            Macro<span className="text-blue-500">Edge</span>
+          </div>
+          <div className="text-[11px] text-slate-500 leading-tight">
+            powered by <span className="text-indigo-400 font-medium">FRED</span>
+          </div>
         </div>
       </Link>
 
