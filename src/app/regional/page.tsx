@@ -40,12 +40,12 @@ export default function RegionalPage() {
         {/* KPI Cards */}
         <RegionalKpis />
 
-        {/* National Average + US Heat Map */}
+        {/* US Heat Map + National Average */}
         <div className="grid grid-cols-4 gap-6 mb-7">
-          <NationalAverageCard />
           <div className="col-span-3">
             <HeatMapGrid />
           </div>
+          <NationalAverageCard />
         </div>
 
         {/* Regional Price Comparison */}

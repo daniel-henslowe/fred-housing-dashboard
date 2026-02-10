@@ -1,6 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import KpiModal from "./KpiModal";
 
 const nationalAverageData = {
@@ -28,26 +36,12 @@ const nationalAverageData = {
       { date: "Feb 2026", value: 516500 },
     ],
     "5Y": [
-      { date: "Q1 2021", value: 385000 },
-      { date: "Q2 2021", value: 408000 },
-      { date: "Q3 2021", value: 425000 },
-      { date: "Q4 2021", value: 445000 },
-      { date: "Q1 2022", value: 455000 },
-      { date: "Q2 2022", value: 485000 },
-      { date: "Q3 2022", value: 498000 },
-      { date: "Q4 2022", value: 478000 },
-      { date: "Q1 2023", value: 465000 },
-      { date: "Q2 2023", value: 475000 },
-      { date: "Q3 2023", value: 485000 },
-      { date: "Q4 2023", value: 488000 },
-      { date: "Q1 2024", value: 492000 },
-      { date: "Q2 2024", value: 502000 },
-      { date: "Q3 2024", value: 510000 },
-      { date: "Q4 2024", value: 515000 },
-      { date: "Q1 2025", value: 508000 },
-      { date: "Q2 2025", value: 512000 },
-      { date: "Q3 2025", value: 518000 },
-      { date: "Q4 2025", value: 516500 },
+      { date: "2021", value: 385 },
+      { date: "2022", value: 485 },
+      { date: "2023", value: 475 },
+      { date: "2024", value: 505 },
+      { date: "2025", value: 512 },
+      { date: "2026", value: 517 },
     ],
     "10Y": [
       { date: "2016 H1", value: 295000 },
@@ -90,6 +84,16 @@ const nationalAverageData = {
   },
 };
 
+// Simplified 5Y data for the chart (in $K)
+const chartData = [
+  { year: "2021", value: 415 },
+  { year: "2022", value: 485 },
+  { year: "2023", value: 480 },
+  { year: "2024", value: 505 },
+  { year: "2025", value: 512 },
+  { year: "2026", value: 517 },
+];
+
 export default function NationalAverageCard() {
   const [showModal, setShowModal] = useState(false);
 
@@ -97,16 +101,71 @@ export default function NationalAverageCard() {
     <>
       <div
         onClick={() => setShowModal(true)}
-        className="glass-card p-6 h-full flex flex-col justify-center cursor-pointer transition-all duration-200 hover:scale-[1.01] hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10"
+        className="glass-card p-6 h-full flex flex-col cursor-pointer transition-all duration-200 hover:scale-[1.01] hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10"
       >
-        <div className="text-4xl mb-4">{nationalAverageData.icon}</div>
-        <div className="text-sm text-slate-400 mb-2">{nationalAverageData.label}</div>
-        <div className="text-4xl font-bold mb-3">{nationalAverageData.value}</div>
-        <div className={`text-sm ${nationalAverageData.trend === "up" ? "text-green-400" : "text-red-400"}`}>
-          {nationalAverageData.trend === "up" ? "↑" : "↓"} {nationalAverageData.change}
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <div className="text-3xl mb-2">{nationalAverageData.icon}</div>
+            <div className="text-sm text-slate-400">{nationalAverageData.label}</div>
+          </div>
+          <div className={`text-sm px-2 py-1 rounded-full ${nationalAverageData.trend === "up" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+            {nationalAverageData.trend === "up" ? "↑" : "↓"} {nationalAverageData.change}
+          </div>
         </div>
-        <p className="text-xs text-slate-500 mt-4">
-          Click to view historical trends
+
+        <div className="text-4xl font-bold mb-4">{nationalAverageData.value}</div>
+
+        {/* 5 Year Chart */}
+        <div className="flex-1 min-h-[180px]">
+          <div className="text-xs text-slate-500 mb-2">5-Year Trend</div>
+          <ResponsiveContainer width="100%" height="85%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorNationalAvg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="year"
+                stroke="#64748b"
+                fontSize={10}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="#64748b"
+                fontSize={10}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => `$${v}K`}
+                domain={["dataMin - 20", "dataMax + 20"]}
+                width={45}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#0f172a",
+                  border: "1px solid #22c55e",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                }}
+                formatter={(value) => [`$${value}K`, "Avg Price"]}
+                labelStyle={{ color: "#fff" }}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#22c55e"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorNationalAvg)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <p className="text-xs text-slate-500 mt-2 text-center">
+          Click for detailed historical data
         </p>
       </div>
 
