@@ -8,8 +8,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FRED Housing Dashboard",
+  title: "MacroEdge Housing Dashboard",
   description: "Regional housing data dashboard powered by FRED API",
+  icons: {
+    icon: "/favicon.jpg",
+  },
 };
 
 export default function RootLayout({
