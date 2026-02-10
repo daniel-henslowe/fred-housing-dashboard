@@ -5,6 +5,7 @@ interface KpiCardProps {
   value: string;
   change: string;
   trend: "up" | "down";
+  onClick?: () => void;
 }
 
 const bgColors = {
@@ -22,9 +23,23 @@ export default function KpiCard({
   value,
   change,
   trend,
+  onClick,
 }: KpiCardProps) {
   return (
-    <div className="glass-card p-5 relative overflow-hidden gradient-border-top">
+    <div
+      onClick={onClick}
+      className={`glass-card p-5 relative overflow-hidden gradient-border-top transition-all duration-200 ${
+        onClick
+          ? "cursor-pointer hover:scale-[1.02] hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10"
+          : ""
+      }`}
+    >
+      {/* Click indicator */}
+      {onClick && (
+        <div className="absolute top-3 right-3 text-slate-500 text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="w-5 h-5 rounded bg-slate-700/50 flex items-center justify-center text-[10px]">↗</span>
+        </div>
+      )}
       <div
         className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-xl ${bgColors[iconBg]}`}
       >
@@ -39,6 +54,11 @@ export default function KpiCard({
       >
         {trend === "up" ? "↑" : "↓"} {change}
       </div>
+      {onClick && (
+        <div className="absolute bottom-3 right-3 text-xs text-slate-500">
+          Click for details
+        </div>
+      )}
     </div>
   );
 }
