@@ -3,6 +3,7 @@
 import Sidebar from "@/components/Sidebar";
 import RegionalKpis from "@/components/RegionalKpis";
 import HeatMapGrid from "@/components/HeatMapGrid";
+import NationalAverageCard from "@/components/NationalAverageCard";
 import MetroHeatMap from "@/components/MetroHeatMap";
 import RegionalPriceGrid from "@/components/RegionalPriceGrid";
 import RegionalTrends from "@/components/RegionalTrends";
@@ -39,9 +40,12 @@ export default function RegionalPage() {
         {/* KPI Cards */}
         <RegionalKpis />
 
-        {/* US Heat Map */}
-        <div className="mb-7">
-          <HeatMapGrid />
+        {/* National Average + US Heat Map */}
+        <div className="grid grid-cols-4 gap-6 mb-7">
+          <NationalAverageCard />
+          <div className="col-span-3">
+            <HeatMapGrid />
+          </div>
         </div>
 
         {/* Regional Price Comparison */}
