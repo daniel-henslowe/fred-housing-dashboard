@@ -30,20 +30,20 @@ export default function AffordabilityGauge() {
   // Calculate needle rotation (-135deg to 135deg for 270deg arc)
   const needleRotation = -135 + (animatedScore / 150) * 270;
 
-  // Get color based on score
+  // Get color based on score (lower = better/green, higher = worse/red)
   const getScoreColor = (s: number) => {
-    if (s >= 100) return "#22c55e";
-    if (s >= 80) return "#84cc16";
-    if (s >= 60) return "#eab308";
-    if (s >= 40) return "#f97316";
+    if (s <= 40) return "#22c55e";
+    if (s <= 60) return "#84cc16";
+    if (s <= 90) return "#eab308";
+    if (s <= 120) return "#f97316";
     return "#ef4444";
   };
 
   const getScoreLabel = (s: number) => {
-    if (s >= 100) return "Excellent";
-    if (s >= 80) return "Good";
-    if (s >= 60) return "Fair";
-    if (s >= 40) return "Poor";
+    if (s <= 40) return "Excellent";
+    if (s <= 60) return "Good";
+    if (s <= 90) return "Fair";
+    if (s <= 120) return "Poor";
     return "Critical";
   };
 
@@ -59,13 +59,13 @@ export default function AffordabilityGauge() {
           {/* SVG Gauge */}
           <svg viewBox="0 0 200 120" className="w-full h-full">
             <defs>
-              {/* Gradient for the arc - red (critical/low) to green (good/high) */}
+              {/* Gradient for the arc - green (good/low) to red (critical/high) */}
               <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#ef4444" />
-                <stop offset="25%" stopColor="#f97316" />
+                <stop offset="0%" stopColor="#22c55e" />
+                <stop offset="25%" stopColor="#84cc16" />
                 <stop offset="50%" stopColor="#eab308" />
-                <stop offset="75%" stopColor="#84cc16" />
-                <stop offset="100%" stopColor="#22c55e" />
+                <stop offset="75%" stopColor="#f97316" />
+                <stop offset="100%" stopColor="#ef4444" />
               </linearGradient>
               {/* Glow filter */}
               <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
