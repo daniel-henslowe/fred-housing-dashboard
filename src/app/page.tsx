@@ -10,6 +10,7 @@ import MiniCard from "@/components/MiniCard";
 import RegionalChart from "@/components/RegionalChart";
 import ProgressCard from "@/components/ProgressCard";
 import MetricsTable from "@/components/MetricsTable";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface HistoricalDataPoint {
   date: string;
@@ -853,9 +854,12 @@ export default function Dashboard() {
               MacroEdge Housing • Powered by FRED • Last updated: Feb 10, 2026
             </p>
           </div>
-          <button className="btn-primary px-6 py-3 rounded-xl font-semibold text-sm">
-            Export Data
-          </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <button className="btn-primary px-6 py-3 rounded-xl font-semibold text-sm">
+              Export Data
+            </button>
+          </div>
         </header>
 
         {/* KPI Cards */}

@@ -10,6 +10,14 @@
   --accent-secondary: #8b5cf6;
 }
 
+html.light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-border: rgba(99, 102, 241, 0.25);
+  --muted: #64748b;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -25,6 +33,11 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   min-height: 100vh;
+}
+
+html.light body {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%);
+  color: var(--foreground);
 }
 
 /* Scrollbar */
@@ -49,6 +62,62 @@ body {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
   border: 1px solid rgba(99, 102, 241, 0.15);
   border-radius: 20px;
+}
+
+html.light .glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Light mode text colors */
+html.light .text-slate-400 {
+  color: #64748b;
+}
+
+html.light .text-slate-500 {
+  color: #475569;
+}
+
+html.light .text-white {
+  color: #0f172a;
+}
+
+/* Light mode scrollbar */
+html.light ::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #6366f1;
+}
+
+/* Light mode sidebar */
+html.light aside {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)) !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+html.light aside .text-slate-500,
+html.light aside .text-slate-400 {
+  color: #64748b;
+}
+
+/* Light mode backgrounds */
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800 {
+  background-color: rgba(241, 245, 249, 0.8) !important;
+}
+
+html.light .bg-slate-900 {
+  background-color: #f8fafc !important;
+}
+
+html.light .border-slate-700,
+html.light .border-indigo-500\/10,
+html.light .border-indigo-500\/20 {
+  border-color: rgba(99, 102, 241, 0.2) !important;
 }
 
 .gradient-border-top::before {
