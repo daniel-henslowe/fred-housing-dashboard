@@ -11,21 +11,23 @@ import RegionalChart from "@/components/RegionalChart";
 import ProgressCard from "@/components/ProgressCard";
 import MetricsTable from "@/components/MetricsTable";
 
-interface KpiDataItem {
+interface MetricDataItem {
   id: string;
   icon: string;
-  iconBg: "blue" | "green" | "purple" | "orange" | "cyan";
+  iconBg?: "blue" | "green" | "purple" | "orange" | "cyan";
   label: string;
   value: string;
   change: string;
-  trend: "up" | "down";
+  trend: "up" | "down" | "neutral";
   unit?: string;
   color: string;
   description: string;
   historicalData: { date: string; value: number }[];
+  // For mini cards
+  sparklineData?: number[];
 }
 
-const kpiData: KpiDataItem[] = [
+const kpiData: MetricDataItem[] = [
   {
     id: "median-price",
     icon: "🏠",
@@ -158,43 +160,115 @@ const kpiData: KpiDataItem[] = [
   },
 ];
 
-const miniCardData = [
+const miniCardData: MetricDataItem[] = [
   {
-    title: "New Home Sales",
+    id: "new-home-sales",
+    icon: "🏡",
+    label: "New Home Sales",
     value: "682K",
     change: "+3.2%",
-    trend: "up" as const,
-    data: [620, 635, 650, 648, 660, 670, 665, 675, 680, 682],
+    trend: "up",
+    unit: "",
     color: "#22c55e",
+    sparklineData: [620, 635, 650, 648, 660, 670, 665, 675, 680, 682],
+    description: "New home sales measure the number of newly constructed homes sold during a period. This is a key indicator of housing demand and builder confidence. Source: FRED HSN1F series.",
+    historicalData: [
+      { date: "Mar 2025", value: 620 },
+      { date: "Apr 2025", value: 635 },
+      { date: "May 2025", value: 650 },
+      { date: "Jun 2025", value: 648 },
+      { date: "Jul 2025", value: 660 },
+      { date: "Aug 2025", value: 670 },
+      { date: "Sep 2025", value: 665 },
+      { date: "Oct 2025", value: 675 },
+      { date: "Nov 2025", value: 680 },
+      { date: "Dec 2025", value: 678 },
+      { date: "Jan 2026", value: 680 },
+      { date: "Feb 2026", value: 682 },
+    ],
   },
   {
-    title: "Existing Home Sales",
+    id: "existing-home-sales",
+    icon: "🏠",
+    label: "Existing Home Sales",
     value: "4.09M",
     change: "-1.8%",
-    trend: "down" as const,
-    data: [4.2, 4.15, 4.1, 4.05, 4.08, 4.12, 4.1, 4.08, 4.05, 4.09],
+    trend: "down",
+    unit: "",
     color: "#ef4444",
+    sparklineData: [4.2, 4.15, 4.1, 4.05, 4.08, 4.12, 4.1, 4.08, 4.05, 4.09],
+    description: "Existing home sales measure the number of previously owned homes sold. This represents the bulk of the housing market and indicates overall market health. Source: FRED EXHOSLUSM495S series.",
+    historicalData: [
+      { date: "Mar 2025", value: 4.20 },
+      { date: "Apr 2025", value: 4.15 },
+      { date: "May 2025", value: 4.10 },
+      { date: "Jun 2025", value: 4.05 },
+      { date: "Jul 2025", value: 4.08 },
+      { date: "Aug 2025", value: 4.12 },
+      { date: "Sep 2025", value: 4.10 },
+      { date: "Oct 2025", value: 4.08 },
+      { date: "Nov 2025", value: 4.05 },
+      { date: "Dec 2025", value: 4.02 },
+      { date: "Jan 2026", value: 4.05 },
+      { date: "Feb 2026", value: 4.09 },
+    ],
   },
   {
-    title: "Inventory (Months)",
+    id: "inventory-months",
+    icon: "📦",
+    label: "Inventory (Months)",
     value: "3.2",
     change: "+0.3",
-    trend: "up" as const,
-    data: [2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.0, 3.1, 3.15, 3.2],
+    trend: "up",
+    unit: "",
     color: "#6366f1",
+    sparklineData: [2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.0, 3.1, 3.15, 3.2],
+    description: "Months of supply represents how long it would take to sell all homes currently on the market at the current sales pace. A balanced market typically has 4-6 months of supply. Source: FRED MSACSR series.",
+    historicalData: [
+      { date: "Mar 2025", value: 2.5 },
+      { date: "Apr 2025", value: 2.6 },
+      { date: "May 2025", value: 2.7 },
+      { date: "Jun 2025", value: 2.8 },
+      { date: "Jul 2025", value: 2.9 },
+      { date: "Aug 2025", value: 3.0 },
+      { date: "Sep 2025", value: 3.0 },
+      { date: "Oct 2025", value: 3.1 },
+      { date: "Nov 2025", value: 3.15 },
+      { date: "Dec 2025", value: 3.18 },
+      { date: "Jan 2026", value: 3.2 },
+      { date: "Feb 2026", value: 3.2 },
+    ],
   },
   {
-    title: "Days on Market",
+    id: "days-on-market",
+    icon: "📅",
+    label: "Days on Market",
     value: "28",
     change: "±0",
-    trend: "neutral" as const,
-    data: [30, 29, 28, 27, 26, 27, 28, 28, 28, 28],
+    trend: "neutral",
+    unit: "",
     color: "#94a3b8",
+    sparklineData: [30, 29, 28, 27, 26, 27, 28, 28, 28, 28],
+    description: "Median days on market measures how long homes typically stay listed before selling. Lower numbers indicate a seller's market with high demand. Source: FRED regional data.",
+    historicalData: [
+      { date: "Mar 2025", value: 30 },
+      { date: "Apr 2025", value: 29 },
+      { date: "May 2025", value: 28 },
+      { date: "Jun 2025", value: 27 },
+      { date: "Jul 2025", value: 26 },
+      { date: "Aug 2025", value: 27 },
+      { date: "Sep 2025", value: 28 },
+      { date: "Oct 2025", value: 28 },
+      { date: "Nov 2025", value: 28 },
+      { date: "Dec 2025", value: 29 },
+      { date: "Jan 2026", value: 28 },
+      { date: "Feb 2026", value: 28 },
+    ],
   },
 ];
 
 export default function Dashboard() {
-  const [selectedKpi, setSelectedKpi] = useState<KpiDataItem | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState<MetricDataItem | null>(null);
 
   return (
     <div className="flex min-h-screen">
@@ -227,12 +301,12 @@ export default function Dashboard() {
             <KpiCard
               key={kpi.id}
               icon={kpi.icon}
-              iconBg={kpi.iconBg}
+              iconBg={kpi.iconBg!}
               label={kpi.label}
               value={kpi.value}
               change={kpi.change}
-              trend={kpi.trend}
-              onClick={() => setSelectedKpi(kpi)}
+              trend={kpi.trend as "up" | "down"}
+              onClick={() => setSelectedMetric(kpi)}
             />
           ))}
         </div>
@@ -248,7 +322,16 @@ export default function Dashboard() {
         {/* Mini Cards */}
         <div className="grid grid-cols-4 gap-5 mb-7">
           {miniCardData.map((card) => (
-            <MiniCard key={card.title} {...card} />
+            <MiniCard
+              key={card.id}
+              title={card.label}
+              value={card.value}
+              change={card.change}
+              trend={card.trend}
+              data={card.sparklineData!}
+              color={card.color}
+              onClick={() => setSelectedMetric(card)}
+            />
           ))}
         </div>
 
@@ -260,20 +343,20 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* KPI Detail Modal */}
-      {selectedKpi && (
+      {/* Metric Detail Modal */}
+      {selectedMetric && (
         <KpiModal
-          isOpen={!!selectedKpi}
-          onClose={() => setSelectedKpi(null)}
-          title={selectedKpi.label}
-          currentValue={selectedKpi.value}
-          change={selectedKpi.change}
-          trend={selectedKpi.trend}
-          icon={selectedKpi.icon}
-          historicalData={selectedKpi.historicalData}
-          unit={selectedKpi.unit}
-          description={selectedKpi.description}
-          color={selectedKpi.color}
+          isOpen={!!selectedMetric}
+          onClose={() => setSelectedMetric(null)}
+          title={selectedMetric.label}
+          currentValue={selectedMetric.value}
+          change={selectedMetric.change}
+          trend={selectedMetric.trend as "up" | "down"}
+          icon={selectedMetric.icon}
+          historicalData={selectedMetric.historicalData}
+          unit={selectedMetric.unit}
+          description={selectedMetric.description}
+          color={selectedMetric.color}
         />
       )}
     </div>

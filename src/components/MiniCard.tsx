@@ -13,6 +13,7 @@ interface MiniCardProps {
   trend: "up" | "down" | "neutral";
   data: number[];
   color: string;
+  onClick?: () => void;
 }
 
 export default function MiniCard({
@@ -22,6 +23,7 @@ export default function MiniCard({
   trend,
   data,
   color,
+  onClick,
 }: MiniCardProps) {
   const chartData = data.map((v, i) => ({ value: v, index: i }));
 
@@ -32,7 +34,14 @@ export default function MiniCard({
   };
 
   return (
-    <div className="glass-card p-5">
+    <div
+      onClick={onClick}
+      className={`glass-card p-5 transition-all duration-200 ${
+        onClick
+          ? "cursor-pointer hover:scale-[1.02] hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10"
+          : ""
+      }`}
+    >
       <div className="flex justify-between items-start mb-3">
         <span className="text-sm text-slate-400">{title}</span>
         <span className={`px-2 py-1 rounded-md text-xs font-medium ${badgeColor[trend]}`}>
@@ -40,11 +49,11 @@ export default function MiniCard({
         </span>
       </div>
       <div className="text-2xl font-bold mb-3">{value}</div>
-      <div className="h-[100px]">
+      <div className="h-[100px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <defs>
-              <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={`gradient-${title.replace(/\s/g, '-')}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={color} stopOpacity={0.3} />
                 <stop offset="95%" stopColor={color} stopOpacity={0} />
               </linearGradient>
@@ -53,12 +62,17 @@ export default function MiniCard({
               type="monotone"
               dataKey="value"
               stroke={color}
-              fill={`url(#gradient-${title})`}
+              fill={`url(#gradient-${title.replace(/\s/g, '-')})`}
               strokeWidth={2}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
+      {onClick && (
+        <div className="text-xs text-slate-500 mt-2 text-right">
+          Click for details
+        </div>
+      )}
     </div>
   );
 }
