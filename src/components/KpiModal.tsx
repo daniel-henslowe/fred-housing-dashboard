@@ -248,7 +248,7 @@ export default function KpiModal({
           {/* Data Table */}
           <div className="glass-card p-6">
             <h3 className="text-lg font-semibold mb-4">Historical Data</h3>
-            <div className="grid grid-cols-4 gap-4 max-h-[300px] overflow-y-auto">
+            <div className="grid grid-cols-4 gap-4">
               {currentData.map((point, idx) => {
                 const prevValue = idx > 0 ? currentData[idx - 1].value : point.value;
                 const dataChange = ((point.value - prevValue) / prevValue) * 100;
