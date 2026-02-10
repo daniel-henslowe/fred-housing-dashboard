@@ -125,18 +125,18 @@ export default function AffordabilityGauge() {
               );
             })}
 
-            {/* Needle - white color */}
+            {/* Needle - white color, centered at gauge center */}
             <g
               transform={`rotate(${needleRotation}, 100, 100)`}
               filter="url(#shadow)"
             >
               <polygon
-                points="100,55 97,95 103,95"
+                points="100,40 96,100 104,100"
                 fill="#ffffff"
                 className="drop-shadow-lg"
               />
-              <circle cx="100" cy="95" r="6" fill="#ffffff" />
-              <circle cx="100" cy="95" r="3" fill="#0f172a" />
+              <circle cx="100" cy="100" r="8" fill="#ffffff" />
+              <circle cx="100" cy="100" r="4" fill="#0f172a" />
             </g>
 
             {/* Min/Max labels */}
