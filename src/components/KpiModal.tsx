@@ -34,7 +34,7 @@ interface KpiModalProps {
   title: string;
   currentValue: string;
   change: string;
-  trend: "up" | "down";
+  trend: "up" | "down" | "neutral";
   icon: string;
   historicalData: HistoricalDataSets;
   unit?: string;
@@ -138,10 +138,10 @@ export default function KpiModal({
               <div className="text-4xl font-bold">{currentValue}</div>
               <div
                 className={`text-sm mt-2 flex items-center gap-1 ${
-                  trend === "up" ? "text-green-400" : "text-red-400"
+                  trend === "up" ? "text-green-400" : trend === "down" ? "text-red-400" : "text-slate-400"
                 }`}
               >
-                {trend === "up" ? "↑" : "↓"} {change}
+                {trend === "up" ? "↑" : trend === "down" ? "↓" : "→"} {change}
               </div>
             </div>
             <div className="grid grid-cols-4 gap-6">
