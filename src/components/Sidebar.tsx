@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   HomeIcon,
   ChartBarIcon,
@@ -15,7 +16,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 const mainNav = [
-  { name: "Dashboard", icon: HomeIcon, href: "/", active: true },
+  { name: "Dashboard", icon: HomeIcon, href: "/" },
   { name: "Regional Data", icon: TableCellsIcon, href: "/regional" },
   { name: "Analytics", icon: ChartBarIcon, href: "/analytics" },
   { name: "Historical", icon: CalendarIcon, href: "/historical" },
@@ -34,19 +35,24 @@ const settingsNav = [
 ];
 
 export default function Sidebar() {
-  const [activeItem, setActiveItem] = useState("Dashboard");
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
     <aside className="w-[260px] h-screen fixed left-0 top-0 bg-gradient-to-b from-slate-900/95 to-slate-950/98 border-r border-indigo-500/10 p-6 overflow-y-auto">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-3 mb-8">
+      <Link href="/" className="flex items-center gap-3 px-3 mb-8">
         <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center font-bold text-lg">
           F
         </div>
         <div className="text-xl font-bold">
           FRED<span className="text-indigo-500">Housing</span>
         </div>
-      </div>
+      </Link>
 
       {/* Main Nav */}
       <nav className="mb-6">
@@ -54,18 +60,18 @@ export default function Sidebar() {
           Main
         </div>
         {mainNav.map((item) => (
-          <button
+          <Link
             key={item.name}
-            onClick={() => setActiveItem(item.name)}
+            href={item.href}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-all ${
-              activeItem === item.name
+              isActive(item.href)
                 ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/40"
                 : "text-slate-400 hover:bg-indigo-500/10 hover:text-white"
             }`}
           >
             <item.icon className="w-5 h-5 opacity-80" />
             {item.name}
-          </button>
+          </Link>
         ))}
       </nav>
 
@@ -75,18 +81,18 @@ export default function Sidebar() {
           Metrics
         </div>
         {metricsNav.map((item) => (
-          <button
+          <Link
             key={item.name}
-            onClick={() => setActiveItem(item.name)}
+            href={item.href}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-all ${
-              activeItem === item.name
+              isActive(item.href)
                 ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/40"
                 : "text-slate-400 hover:bg-indigo-500/10 hover:text-white"
             }`}
           >
             <item.icon className="w-5 h-5 opacity-80" />
             {item.name}
-          </button>
+          </Link>
         ))}
       </nav>
 
@@ -96,18 +102,18 @@ export default function Sidebar() {
           Settings
         </div>
         {settingsNav.map((item) => (
-          <button
+          <Link
             key={item.name}
-            onClick={() => setActiveItem(item.name)}
+            href={item.href}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-all ${
-              activeItem === item.name
+              isActive(item.href)
                 ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/40"
                 : "text-slate-400 hover:bg-indigo-500/10 hover:text-white"
             }`}
           >
             <item.icon className="w-5 h-5 opacity-80" />
             {item.name}
-          </button>
+          </Link>
         ))}
       </nav>
     </aside>
