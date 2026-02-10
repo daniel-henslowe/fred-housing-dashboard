@@ -28,22 +28,22 @@ export default function AffordabilityGauge() {
   }, []);
 
   // Calculate needle rotation (-135deg to 135deg for 270deg arc)
-  const needleRotation = -135 + (animatedScore / 150) * 270;
+  const needleRotation = -135 + (animatedScore / 100) * 270;
 
-  // Get color based on score (lower = better/green, higher = worse/red)
+  // Get color based on score (lower = better/green, higher = worse/red) - 0-100 scale
   const getScoreColor = (s: number) => {
-    if (s <= 40) return "#22c55e";
-    if (s <= 60) return "#84cc16";
-    if (s <= 90) return "#eab308";
-    if (s <= 120) return "#f97316";
+    if (s <= 25) return "#22c55e";
+    if (s <= 50) return "#84cc16";
+    if (s <= 70) return "#eab308";
+    if (s <= 85) return "#f97316";
     return "#ef4444";
   };
 
   const getScoreLabel = (s: number) => {
-    if (s <= 40) return "Excellent";
-    if (s <= 60) return "Good";
-    if (s <= 90) return "Fair";
-    if (s <= 120) return "Poor";
+    if (s <= 25) return "Excellent";
+    if (s <= 50) return "Good";
+    if (s <= 70) return "Fair";
+    if (s <= 85) return "Poor";
     return "Critical";
   };
 
@@ -101,14 +101,14 @@ export default function AffordabilityGauge() {
               className={`transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
               style={{
                 strokeDasharray: "251.2",
-                strokeDashoffset: isVisible ? 251.2 - (animatedScore / 150) * 251.2 : 251.2,
+                strokeDashoffset: isVisible ? 251.2 - (animatedScore / 100) * 251.2 : 251.2,
                 transition: "stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
             />
 
             {/* Tick marks */}
-            {[0, 30, 60, 90, 120, 150].map((tick, i) => {
-              const angle = (-135 + (tick / 150) * 270) * (Math.PI / 180);
+            {[0, 20, 40, 60, 80, 100].map((tick, i) => {
+              const angle = (-135 + (tick / 100) * 270) * (Math.PI / 180);
               const x1 = 100 + 65 * Math.cos(angle);
               const y1 = 100 + 65 * Math.sin(angle);
               const x2 = 100 + 72 * Math.cos(angle);
@@ -127,7 +127,7 @@ export default function AffordabilityGauge() {
               );
             })}
 
-            {/* Needle - shortened to not overlap with score */}
+            {/* Needle - white color */}
             <g
               transform={`rotate(${needleRotation}, 100, 100)`}
               filter="url(#shadow)"
@@ -135,26 +135,23 @@ export default function AffordabilityGauge() {
             >
               <polygon
                 points="100,55 97,95 103,95"
-                fill={getScoreColor(animatedScore)}
+                fill="#ffffff"
                 className="drop-shadow-lg"
               />
-              <circle cx="100" cy="95" r="6" fill={getScoreColor(animatedScore)} />
+              <circle cx="100" cy="95" r="6" fill="#ffffff" />
               <circle cx="100" cy="95" r="3" fill="#0f172a" />
             </g>
 
             {/* Min/Max labels */}
             <text x="15" y="115" fill="#64748b" fontSize="10" textAnchor="middle">0</text>
-            <text x="185" y="115" fill="#64748b" fontSize="10" textAnchor="middle">150</text>
+            <text x="185" y="115" fill="#64748b" fontSize="10" textAnchor="middle">100</text>
           </svg>
 
         </div>
 
         {/* Score display - below the gauge */}
         <div className="text-center -mt-2">
-          <div
-            className="text-5xl font-bold transition-colors duration-300"
-            style={{ color: getScoreColor(animatedScore) }}
-          >
+          <div className="text-5xl font-bold text-white">
             {animatedScore.toFixed(1)}
           </div>
         </div>
