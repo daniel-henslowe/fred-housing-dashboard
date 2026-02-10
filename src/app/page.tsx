@@ -875,11 +875,13 @@ export default function Dashboard() {
         </div>
 
         {/* Main Charts */}
-        <div className="grid grid-cols-3 gap-6 mb-7">
-          <div className="col-span-2">
+        <div className="grid grid-cols-3 gap-6 mb-7 items-stretch">
+          <div className="col-span-2 h-full">
             <PriceChart />
           </div>
-          <AffordabilityGauge />
+          <div className="h-full">
+            <AffordabilityGauge />
+          </div>
         </div>
 
         {/* Mini Cards */}

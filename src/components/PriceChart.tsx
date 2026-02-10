@@ -135,7 +135,7 @@ export default function PriceChart() {
   const change = ((lastValue - firstValue) / firstValue) * 100;
 
   return (
-    <div className="glass-card p-6">
+    <div className="glass-card p-6 h-full">
       <div className="flex justify-between items-start mb-6">
         <div>
           <h3 className="text-lg font-semibold">Home Price Trends</h3>
