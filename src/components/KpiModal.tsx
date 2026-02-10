@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -19,6 +19,15 @@ interface HistoricalDataPoint {
   value: number;
 }
 
+interface HistoricalDataSets {
+  "1Y": HistoricalDataPoint[];
+  "5Y": HistoricalDataPoint[];
+  "10Y": HistoricalDataPoint[];
+  "Max": HistoricalDataPoint[];
+}
+
+type PeriodKey = keyof HistoricalDataSets;
+
 interface KpiModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,11 +36,20 @@ interface KpiModalProps {
   change: string;
   trend: "up" | "down";
   icon: string;
-  historicalData: HistoricalDataPoint[];
+  historicalData: HistoricalDataSets;
   unit?: string;
   description?: string;
   color?: string;
 }
+
+const periods: PeriodKey[] = ["1Y", "5Y", "10Y", "Max"];
+
+const periodLabels: Record<PeriodKey, string> = {
+  "1Y": "12-Month Trend",
+  "5Y": "5-Year Trend",
+  "10Y": "10-Year Trend",
+  "Max": "All-Time Trend",
+};
 
 export default function KpiModal({
   isOpen,
@@ -46,6 +64,8 @@ export default function KpiModal({
   description,
   color = "#6366f1",
 }: KpiModalProps) {
+  const [activePeriod, setActivePeriod] = useState<PeriodKey>("1Y");
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -60,16 +80,25 @@ export default function KpiModal({
     };
   }, [isOpen, onClose]);
 
+  // Reset to 1Y when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setActivePeriod("1Y");
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
+  const currentData = historicalData[activePeriod];
+
   // Calculate statistics
-  const values = historicalData.map((d) => d.value);
+  const values = currentData.map((d) => d.value);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const yearAgo = historicalData[0]?.value || 0;
-  const current = historicalData[historicalData.length - 1]?.value || 0;
-  const yoyChange = yearAgo ? ((current - yearAgo) / yearAgo) * 100 : 0;
+  const periodStart = currentData[0]?.value || 0;
+  const current = currentData[currentData.length - 1]?.value || 0;
+  const periodChange = periodStart ? ((current - periodStart) / periodStart) * 100 : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -117,13 +146,13 @@ export default function KpiModal({
             </div>
             <div className="grid grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="text-sm text-slate-400 mb-1">52-Wk High</div>
+                <div className="text-sm text-slate-400 mb-1">Period High</div>
                 <div className="text-lg font-semibold text-green-400">
                   {unit}{max.toLocaleString()}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-slate-400 mb-1">52-Wk Low</div>
+                <div className="text-sm text-slate-400 mb-1">Period Low</div>
                 <div className="text-lg font-semibold text-red-400">
                   {unit}{min.toLocaleString()}
                 </div>
@@ -135,13 +164,13 @@ export default function KpiModal({
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-slate-400 mb-1">YoY Change</div>
+                <div className="text-sm text-slate-400 mb-1">Period Change</div>
                 <div
                   className={`text-lg font-semibold ${
-                    yoyChange >= 0 ? "text-green-400" : "text-red-400"
+                    periodChange >= 0 ? "text-green-400" : "text-red-400"
                   }`}
                 >
-                  {yoyChange >= 0 ? "+" : ""}{yoyChange.toFixed(1)}%
+                  {periodChange >= 0 ? "+" : ""}{periodChange.toFixed(1)}%
                 </div>
               </div>
             </div>
@@ -149,10 +178,27 @@ export default function KpiModal({
 
           {/* Chart */}
           <div className="glass-card p-6 mb-6">
-            <h3 className="text-lg font-semibold mb-4">12-Month Trend</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">{periodLabels[activePeriod]}</h3>
+              <div className="flex gap-2">
+                {periods.map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => setActivePeriod(period)}
+                    className={`px-4 py-2 rounded-lg text-sm transition-all ${
+                      activePeriod === period
+                        ? "bg-indigo-500/20 border border-indigo-500/30 text-white"
+                        : "bg-indigo-500/10 border border-transparent text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {period}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={historicalData}>
+                <AreaChart data={currentData}>
                   <defs>
                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -180,8 +226,8 @@ export default function KpiModal({
                       border: "1px solid #334155",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [
-                      `${unit}${value.toLocaleString()}`,
+                    formatter={(value) => [
+                      `${unit}${Number(value).toLocaleString()}`,
                       title,
                     ]}
                     labelStyle={{ color: "#fff" }}
@@ -201,11 +247,11 @@ export default function KpiModal({
 
           {/* Data Table */}
           <div className="glass-card p-6">
-            <h3 className="text-lg font-semibold mb-4">Monthly Data</h3>
-            <div className="grid grid-cols-4 gap-4">
-              {historicalData.map((point, idx) => {
-                const prevValue = idx > 0 ? historicalData[idx - 1].value : point.value;
-                const monthChange = ((point.value - prevValue) / prevValue) * 100;
+            <h3 className="text-lg font-semibold mb-4">Historical Data</h3>
+            <div className="grid grid-cols-4 gap-4 max-h-[300px] overflow-y-auto">
+              {currentData.map((point, idx) => {
+                const prevValue = idx > 0 ? currentData[idx - 1].value : point.value;
+                const dataChange = ((point.value - prevValue) / prevValue) * 100;
                 return (
                   <div
                     key={point.date}
@@ -218,10 +264,10 @@ export default function KpiModal({
                     {idx > 0 && (
                       <div
                         className={`text-xs mt-1 ${
-                          monthChange >= 0 ? "text-green-400" : "text-red-400"
+                          dataChange >= 0 ? "text-green-400" : "text-red-400"
                         }`}
                       >
-                        {monthChange >= 0 ? "↑" : "↓"} {Math.abs(monthChange).toFixed(1)}%
+                        {dataChange >= 0 ? "↑" : "↓"} {Math.abs(dataChange).toFixed(1)}%
                       </div>
                     )}
                   </div>

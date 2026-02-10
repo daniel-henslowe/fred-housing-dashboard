@@ -60,7 +60,7 @@ export default function RegionalPriceGrid() {
                   border: "1px solid #334155",
                   borderRadius: "8px",
                 }}
-                formatter={(value: number) => [`$${value}K`, ""]}
+                formatter={(value) => [`$${value}K`, ""]}
                 labelStyle={{ color: "#fff" }}
               />
               <Legend />

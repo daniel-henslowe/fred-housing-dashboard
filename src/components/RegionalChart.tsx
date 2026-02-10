@@ -46,7 +46,7 @@ export default function RegionalChart() {
                 border: "1px solid #334155",
                 borderRadius: "8px",
               }}
-              formatter={(value: number) => [`$${value}K`, "Median Price"]}
+              formatter={(value) => [`$${value}K`, "Median Price"]}
               labelStyle={{ color: "#fff" }}
             />
             <Bar dataKey="price" radius={[8, 8, 0, 0]}>
