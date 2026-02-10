@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MacroEdge Housing Dashboard
 
-## Getting Started
+A comprehensive real-time housing market analytics dashboard powered by FRED (Federal Reserve Economic Data).
 
-First, run the development server:
+**Live Site:** [macroedge.gordianknotdev.site](https://macroedge.gordianknotdev.site)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Key Performance Indicators** - Track median home prices, housing starts, mortgage rates, inventory levels, and sales data with interactive cards showing historical trends
+- **Home Price Trends** - Visualize price movements with 1Y, 5Y, 10Y, and Max time period selectors
+- **Affordability Index** - Animated gauge showing housing affordability score (0-150 scale) with color-coded status indicators
+- **Regional Distribution** - Compare median home prices across Northeast, Midwest, South, and West regions with clickable bars for detailed historical data
+- **US State Heat Map** - Geographic visualization of housing metrics by state including median price, YoY change, inventory, and days on market
+- **Market Health Indicators** - Monitor homeownership rate, vacancy rate, delinquency rate, and price-to-rent ratio
+- **Regional KPIs** - Detailed metrics for construction permits, unemployment rate, population growth, rental vacancy, mortgage delinquency, and housing starts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework:** Next.js 16 with TypeScript
+- **Styling:** Tailwind CSS
+- **Charts:** Recharts
+- **Hosting:** Cloudflare Pages
+- **Data Source:** FRED API
 
-## Learn More
+## Screenshots
 
-To learn more about Next.js, take a look at the following resources:
+![Dashboard Overview](https://macroedge-housing.pages.dev)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
