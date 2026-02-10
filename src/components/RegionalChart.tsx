@@ -175,13 +175,17 @@ export default function RegionalChart() {
               tickFormatter={(value) => `$${value}K`}
             />
             <Tooltip
+              cursor={{ fill: "rgba(99, 102, 241, 0.1)" }}
               contentStyle={{
-                backgroundColor: "#1e293b",
-                border: "1px solid #334155",
-                borderRadius: "8px",
+                backgroundColor: "#0f172a",
+                border: "1px solid #6366f1",
+                borderRadius: "12px",
+                padding: "12px 16px",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
               }}
               formatter={(value) => [`$${value}K`, "Median Price"]}
-              labelStyle={{ color: "#fff" }}
+              labelStyle={{ color: "#fff", fontWeight: "bold", fontSize: "14px", marginBottom: "4px" }}
+              itemStyle={{ color: "#94a3b8", fontSize: "13px" }}
             />
             <Bar dataKey="price" radius={[8, 8, 0, 0]} cursor="pointer">
               {data.map((entry, index) => (
