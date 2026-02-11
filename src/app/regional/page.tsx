@@ -9,7 +9,6 @@ import MetroHeatMap from "@/components/MetroHeatMap";
 import RegionalPriceGrid from "@/components/RegionalPriceGrid";
 import RegionalTrends from "@/components/RegionalTrends";
 import StateDataTable from "@/components/StateDataTable";
-import CityHeatMap from "@/components/CityHeatMap";
 
 const regions = ["All Regions", "Northeast", "Midwest", "South", "West"] as const;
 type Region = typeof regions[number];
@@ -48,19 +47,19 @@ export default function RegionalPage() {
           </div>
         </header>
 
+        {/* KPI Cards - only show for All Regions */}
+        {selectedRegion === "All Regions" && <RegionalKpis />}
+
+        {/* US Heat Map / City Heat Map + National Average */}
+        <div className="grid grid-cols-4 gap-6 mb-7">
+          <div className="col-span-3">
+            <HeatMapGrid selectedRegion={selectedRegion} />
+          </div>
+          {selectedRegion === "All Regions" && <NationalAverageCard />}
+        </div>
+
         {selectedRegion === "All Regions" ? (
           <>
-            {/* KPI Cards */}
-            <RegionalKpis />
-
-            {/* US Heat Map + National Average */}
-            <div className="grid grid-cols-4 gap-6 mb-7">
-              <div className="col-span-3">
-                <HeatMapGrid />
-              </div>
-              <NationalAverageCard />
-            </div>
-
             {/* Regional Price Comparison */}
             <div className="mb-7">
               <RegionalPriceGrid />
@@ -81,12 +80,7 @@ export default function RegionalPage() {
           </>
         ) : (
           <>
-            {/* Region-specific City Heat Map */}
-            <div className="mb-7">
-              <CityHeatMap region={selectedRegion} />
-            </div>
-
-            {/* Regional Trends filtered */}
+            {/* Regional Trends */}
             <div className="mb-7">
               <RegionalTrends />
             </div>
