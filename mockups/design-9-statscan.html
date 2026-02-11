@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StatsCan Interactive - Canadian Economic Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* Dark theme (default) */
+            --bg-primary: #0a1628;
+            --bg-secondary: #0f2140;
+            --bg-card: #122a4e;
+            --bg-card-hover: #153560;
+            --border: #1e3a5f;
+            --text-primary: #ffffff;
+            --text-secondary: #8fa3bf;
+            --text-muted: #5a7a9a;
+            --accent-cyan: #00d4ff;
+            --accent-cyan-dim: rgba(0, 212, 255, 0.15);
+            --accent-pink: #ff4d94;
+            --accent-pink-dim: rgba(255, 77, 148, 0.15);
+            --accent-green: #00e396;
+            --accent-green-dim: rgba(0, 227, 150, 0.15);
+            --accent-yellow: #feb019;
+            --accent-yellow-dim: rgba(254, 176, 25, 0.15);
+            --accent-purple: #9b59ff;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f0f4f8;
+            --bg-secondary: #e2e8f0;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --accent-cyan: #0891b2;
+            --accent-cyan-dim: rgba(8, 145, 178, 0.1);
+            --accent-pink: #db2777;
+            --accent-pink-dim: rgba(219, 39, 119, 0.1);
+            --accent-green: #059669;
+            --accent-green-dim: rgba(5, 150, 105, 0.1);
+            --accent-yellow: #d97706;
+            --accent-yellow-dim: rgba(217, 119, 6, 0.1);
+            --accent-purple: #7c3aed;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+        }
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .logo-text span {
+            color: var(--accent-cyan);
+        }
+        .page-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding-left: 16px;
+            border-left: 1px solid var(--border);
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .date-display {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .theme-toggle {
+            width: 44px;
+            height: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+        [data-theme="light"] .theme-toggle::after {
+            transform: translateX(20px);
+            background: var(--accent-yellow);
+        }
+
+        /* KPI Cards Row */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .kpi-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .kpi-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .kpi-icon.cyan { background: var(--accent-cyan-dim); }
+        .kpi-icon.pink { background: var(--accent-pink-dim); }
+        .kpi-icon.green { background: var(--accent-green-dim); }
+        .kpi-icon.yellow { background: var(--accent-yellow-dim); }
+        .kpi-change {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .kpi-change.up { background: var(--accent-green-dim); color: var(--accent-green); }
+        .kpi-change.down { background: var(--accent-pink-dim); color: var(--accent-pink); }
+        .kpi-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .kpi-value.cyan { color: var(--accent-cyan); }
+        .kpi-value.pink { color: var(--accent-pink); }
+        .kpi-value.green { color: var(--accent-green); }
+        .kpi-value.yellow { color: var(--accent-yellow); }
+        .kpi-spark {
+            height: 40px;
+        }
+        .kpi-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .card-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .period-btn {
+            font-family: inherit;
+            font-size: 12px;
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .period-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .period-btn.active {
+            background: var(--accent-cyan-dim);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .chart-container {
+            height: 280px;
+        }
+
+        /* Table Card */
+        .table-card .card-body {
+            padding: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover td {
+            background: var(--bg-card-hover);
+        }
+        .province-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .province-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .province-dot.cyan { background: var(--accent-cyan); }
+        .province-dot.pink { background: var(--accent-pink); }
+        .province-dot.green { background: var(--accent-green); }
+        .province-dot.yellow { background: var(--accent-yellow); }
+        .province-dot.purple { background: var(--accent-purple); }
+        .trend-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .trend-badge.up { background: var(--accent-green-dim); color: var(--accent-green); }
+        .trend-badge.down { background: var(--accent-pink-dim); color: var(--accent-pink); }
+
+        /* Bottom Grid */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* Donut Chart */
+        .donut-container {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .donut-chart {
+            width: 180px;
+            height: 180px;
+            position: relative;
+        }
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .donut-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .donut-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .donut-legend {
+            flex: 1;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .legend-item:last-child {
+            border-bottom: none;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+        .legend-name {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .legend-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .legend-pct {
+            font-size: 12px;
+            color: var(--text-muted);
+            width: 40px;
+            text-align: right;
+        }
+
+        /* Bar Chart */
+        .bar-chart-container {
+            height: 240px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+        .footer-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="dashboard">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-icon">SC</div>
+                    <div class="logo-text">Stats<span>Can</span> Interactive</div>
+                </div>
+                <div class="page-title">Canadian Economic Indicators Dashboard</div>
+            </div>
+            <div class="header-right">
+                <div class="date-display">Last updated: February 11, 2026</div>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"></button>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon cyan">📈</div>
+                    <span class="kpi-change up">+0.8%</span>
+                </div>
+                <div class="kpi-label">GDP Growth (Q4 2025)</div>
+                <div class="kpi-value cyan">2.4%</div>
+                <div class="kpi-spark"><canvas id="spark1"></canvas></div>
+                <div class="kpi-footer">
+                    <span>vs 2.1% prev quarter</span>
+                    <span>Annual: 2.8%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon pink">👥</div>
+                    <span class="kpi-change down">+0.2%</span>
+                </div>
+                <div class="kpi-label">Unemployment Rate</div>
+                <div class="kpi-value pink">5.8%</div>
+                <div class="kpi-spark"><canvas id="spark2"></canvas></div>
+                <div class="kpi-footer">
+                    <span>vs 5.6% prev month</span>
+                    <span>Jobs: +22.5K</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon green">💰</div>
+                    <span class="kpi-change up">-0.3%</span>
+                </div>
+                <div class="kpi-label">Inflation Rate (CPI)</div>
+                <div class="kpi-value green">2.1%</div>
+                <div class="kpi-spark"><canvas id="spark3"></canvas></div>
+                <div class="kpi-footer">
+                    <span>Target: 2.0%</span>
+                    <span>Core: 2.4%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon yellow">🏠</div>
+                    <span class="kpi-change up">+3.2%</span>
+                </div>
+                <div class="kpi-label">Housing Price Index</div>
+                <div class="kpi-value yellow">$716.8K</div>
+                <div class="kpi-spark"><canvas id="spark4"></canvas></div>
+                <div class="kpi-footer">
+                    <span>vs $694.5K last year</span>
+                    <span>MoM: +0.8%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Charts -->
+        <div class="main-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Economic Growth Trends</div>
+                        <div class="card-subtitle">Real GDP and Key Indicators Over Time</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="period-btn">1Y</button>
+                        <button class="period-btn active">5Y</button>
+                        <button class="period-btn">10Y</button>
+                        <button class="period-btn">Max</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Provincial Overview</div>
+                        <div class="card-subtitle">Key Metrics by Region</div>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Province</th>
+                            <th>GDP Growth</th>
+                            <th>Unemployment</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="province-name"><div class="province-dot cyan"></div>Ontario</div></td>
+                            <td>2.6%</td>
+                            <td>5.5%</td>
+                            <td><span class="trend-badge up">↑ +0.4%</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="province-name"><div class="province-dot pink"></div>Quebec</div></td>
+                            <td>2.3%</td>
+                            <td>4.9%</td>
+                            <td><span class="trend-badge up">↑ +0.2%</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="province-name"><div class="province-dot green"></div>British Columbia</div></td>
+                            <td>2.8%</td>
+                            <td>5.2%</td>
+                            <td><span class="trend-badge up">↑ +0.5%</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="province-name"><div class="province-dot yellow"></div>Alberta</div></td>
+                            <td>3.4%</td>
+                            <td>6.1%</td>
+                            <td><span class="trend-badge up">↑ +0.8%</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="province-name"><div class="province-dot purple"></div>Manitoba</div></td>
+                            <td>2.1%</td>
+                            <td>5.0%</td>
+                            <td><span class="trend-badge down">↓ -0.1%</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="province-name"><div class="province-dot cyan"></div>Saskatchewan</div></td>
+                            <td>2.5%</td>
+                            <td>5.3%</td>
+                            <td><span class="trend-badge up">↑ +0.3%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="bottom-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">GDP by Sector</div>
+                        <div class="card-subtitle">Contribution to National GDP</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="donut-container">
+                        <div class="donut-chart">
+                            <canvas id="donutChart"></canvas>
+                            <div class="donut-center">
+                                <div class="donut-value">$2.14T</div>
+                                <div class="donut-label">Total GDP</div>
+                            </div>
+                        </div>
+                        <div class="donut-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--accent-cyan)"></div>
+                                <span class="legend-name">Services</span>
+                                <span class="legend-value">$1.48T</span>
+                                <span class="legend-pct">69.2%</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--accent-pink)"></div>
+                                <span class="legend-name">Manufacturing</span>
+                                <span class="legend-value">$224B</span>
+                                <span class="legend-pct">10.5%</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--accent-green)"></div>
+                                <span class="legend-name">Resources</span>
+                                <span class="legend-value">$182B</span>
+                                <span class="legend-pct">8.5%</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--accent-yellow)"></div>
+                                <span class="legend-name">Construction</span>
+                                <span class="legend-value">$150B</span>
+                                <span class="legend-pct">7.0%</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--accent-purple)"></div>
+                                <span class="legend-name">Agriculture</span>
+                                <span class="legend-value">$103B</span>
+                                <span class="legend-pct">4.8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Trade Balance by Partner</div>
+                        <div class="card-subtitle">Top 5 Trading Partners (Exports - Imports)</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="bar-chart-container">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div>Data sourced from Statistics Canada. For informational purposes only.</div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">API Documentation</a>
+                <a href="#" class="footer-link">Download Data</a>
+                <a href="#" class="footer-link">Methodology</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+
+            // Update chart colors
+            updateChartColors(newTheme);
+        }
+
+        // Chart colors based on theme
+        function getChartColors(theme) {
+            if (theme === 'light') {
+                return {
+                    grid: '#e2e8f0',
+                    text: '#64748b',
+                    cyan: '#0891b2',
+                    pink: '#db2777',
+                    green: '#059669',
+                    yellow: '#d97706',
+                    purple: '#7c3aed'
+                };
+            }
+            return {
+                grid: '#1e3a5f',
+                text: '#5a7a9a',
+                cyan: '#00d4ff',
+                pink: '#ff4d94',
+                green: '#00e396',
+                yellow: '#feb019',
+                purple: '#9b59ff'
+            };
+        }
+
+        let colors = getChartColors('dark');
+
+        Chart.defaults.color = colors.text;
+        Chart.defaults.borderColor = colors.grid;
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // Sparkline config
+        const sparkConfig = (data, color) => ({
+            type: 'line',
+            data: {
+                labels: data.map((_, i) => i),
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: color + '20',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+
+        // Create sparklines
+        new Chart(document.getElementById('spark1'), sparkConfig([1.8, 2.0, 2.1, 1.9, 2.2, 2.0, 2.3, 2.1, 2.4], colors.cyan));
+        new Chart(document.getElementById('spark2'), sparkConfig([5.2, 5.4, 5.6, 5.5, 5.7, 5.6, 5.5, 5.6, 5.8], colors.pink));
+        new Chart(document.getElementById('spark3'), sparkConfig([3.4, 3.1, 2.8, 2.6, 2.4, 2.3, 2.2, 2.0, 2.1], colors.green));
+        new Chart(document.getElementById('spark4'), sparkConfig([680, 685, 690, 695, 700, 705, 710, 714, 716.8], colors.yellow));
+
+        // Main Chart
+        const mainCtx = document.getElementById('mainChart').getContext('2d');
+        const mainGradient = mainCtx.createLinearGradient(0, 0, 0, 280);
+        mainGradient.addColorStop(0, colors.cyan + '40');
+        mainGradient.addColorStop(1, colors.cyan + '00');
+
+        const mainChart = new Chart(mainCtx, {
+            type: 'line',
+            data: {
+                labels: ['2021 Q1', 'Q2', 'Q3', 'Q4', '2022 Q1', 'Q2', 'Q3', 'Q4', '2023 Q1', 'Q2', 'Q3', 'Q4', '2024 Q1', 'Q2', 'Q3', 'Q4', '2025 Q1', 'Q2', 'Q3', 'Q4'],
+                datasets: [{
+                    label: 'Real GDP Growth',
+                    data: [5.2, 4.8, 3.2, 2.8, 2.4, 2.1, 1.8, 0.8, 0.5, 1.2, 1.8, 2.0, 2.2, 2.4, 2.3, 2.5, 2.6, 2.4, 2.2, 2.4],
+                    borderColor: colors.cyan,
+                    backgroundColor: mainGradient,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 3
+                }, {
+                    label: 'Inflation (CPI)',
+                    data: [1.5, 2.8, 3.6, 4.2, 5.8, 7.2, 6.8, 6.2, 5.4, 4.2, 3.6, 3.2, 2.8, 2.6, 2.4, 2.2, 2.0, 2.1, 2.0, 2.1],
+                    borderColor: colors.pink,
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: { usePointStyle: true, boxWidth: 8 }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: colors.grid },
+                        ticks: { callback: v => v + '%' }
+                    },
+                    x: { grid: { display: false } }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+
+        // Donut Chart
+        const donutChart = new Chart(document.getElementById('donutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Services', 'Manufacturing', 'Resources', 'Construction', 'Agriculture'],
+                datasets: [{
+                    data: [69.2, 10.5, 8.5, 7.0, 4.8],
+                    backgroundColor: [colors.cyan, colors.pink, colors.green, colors.yellow, colors.purple],
+                    borderWidth: 0,
+                    spacing: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Bar Chart
+        const barChart = new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['United States', 'China', 'United Kingdom', 'Japan', 'Mexico'],
+                datasets: [{
+                    label: 'Trade Balance (CAD Billions)',
+                    data: [85.2, -42.5, 12.8, 8.4, 6.2],
+                    backgroundColor: [colors.cyan, colors.pink, colors.green, colors.yellow, colors.purple],
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: colors.grid },
+                        ticks: { callback: v => '$' + v + 'B' }
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Update chart colors on theme change
+        function updateChartColors(theme) {
+            colors = getChartColors(theme);
+            Chart.defaults.color = colors.text;
+            Chart.defaults.borderColor = colors.grid;
+
+            // Would need to recreate charts for full color update
+            // This is a simplified version
+        }
+    </script>
+</body>
+</html>

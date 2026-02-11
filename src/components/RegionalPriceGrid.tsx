@@ -148,8 +148,9 @@ export default function RegionalPriceGrid() {
                   cursor={{ fill: "rgba(99, 102, 241, 0.1)" }}
                   formatter={(value) => [`$${value}K`, ""]}
                   labelStyle={{ color: "#fff" }}
+                  itemStyle={{ color: "#e2e8f0" }}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ color: "#e2e8f0" }} />
                 <Bar
                   dataKey="avgPrice"
                   name="Average Price"
