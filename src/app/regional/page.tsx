@@ -26,9 +26,7 @@ export default function RegionalPage() {
           <div>
             <h1 className="text-2xl font-bold">Regional Housing Data</h1>
             <p className="text-slate-400 mt-1">
-              {selectedRegion === "All Regions"
-                ? "FRED Regional Housing Metrics • Comprehensive geographic analysis"
-                : `${selectedRegion} Region • Top 10 Cities Analysis`}
+              FRED Regional Housing Metrics • Comprehensive geographic analysis
             </p>
           </div>
           <div className="flex items-center gap-4">
@@ -47,55 +45,34 @@ export default function RegionalPage() {
           </div>
         </header>
 
-        {/* KPI Cards - only show for All Regions */}
-        {selectedRegion === "All Regions" && <RegionalKpis />}
+        {/* KPI Cards */}
+        <RegionalKpis />
 
         {/* US Heat Map / City Heat Map + National Average */}
         <div className="grid grid-cols-4 gap-6 mb-7">
           <div className="col-span-3">
             <HeatMapGrid selectedRegion={selectedRegion} />
           </div>
-          {selectedRegion === "All Regions" && <NationalAverageCard />}
+          <NationalAverageCard />
         </div>
 
-        {selectedRegion === "All Regions" ? (
-          <>
-            {/* Regional Price Comparison */}
-            <div className="mb-7">
-              <RegionalPriceGrid />
-            </div>
+        {/* Regional Price Comparison */}
+        <div className="mb-7">
+          <RegionalPriceGrid />
+        </div>
 
-            {/* Regional Trends */}
-            <div className="mb-7">
-              <RegionalTrends />
-            </div>
+        {/* Regional Trends */}
+        <div className="mb-7">
+          <RegionalTrends />
+        </div>
 
-            {/* Metro Area Heat Map Table */}
-            <div className="mb-7">
-              <MetroHeatMap />
-            </div>
+        {/* Metro Area Heat Map Table */}
+        <div className="mb-7">
+          <MetroHeatMap />
+        </div>
 
-            {/* State Level Data */}
-            <StateDataTable />
-          </>
-        ) : (
-          <>
-            {/* Regional Trends */}
-            <div className="mb-7">
-              <RegionalTrends />
-            </div>
-
-            {/* Back to All Regions button */}
-            <div className="text-center">
-              <button
-                onClick={() => setSelectedRegion("All Regions")}
-                className="px-6 py-3 rounded-xl bg-slate-800/50 border border-indigo-500/20 text-slate-300 hover:text-white hover:border-indigo-500/40 transition-all"
-              >
-                ← Back to All Regions View
-              </button>
-            </div>
-          </>
-        )}
+        {/* State Level Data */}
+        <StateDataTable />
       </main>
     </div>
   );
