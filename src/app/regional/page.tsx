@@ -49,7 +49,7 @@ export default function RegionalPage() {
         <RegionalKpis />
 
         {/* US Heat Map / City Heat Map + National Average */}
-        <div className="grid grid-cols-4 gap-6 mb-7">
+        <div className="grid grid-cols-4 gap-6 mb-7 items-end">
           <div className="col-span-3">
             <HeatMapGrid selectedRegion={selectedRegion} />
           </div>
