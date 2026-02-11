@@ -190,7 +190,7 @@ export default function RegionalPriceGrid() {
             <div
               key={region.region}
               onClick={() => setSelectedRegion(region.region)}
-              className="glass-card p-5 relative overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:border-indigo-500/30"
+              className="glass-card p-5 relative overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10"
               style={{ borderLeft: `4px solid ${region.color}` }}
             >
               <div className="text-sm text-slate-400 mb-2">{region.region}</div>
