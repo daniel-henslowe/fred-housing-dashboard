@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacroEdge Housing - Aurora</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: #030712;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Aurora Background */
+        .aurora-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .aurora-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+        .aurora-blob.pink {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+            top: -200px;
+            right: -100px;
+        }
+        .aurora-blob.blue {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: -5s;
+        }
+        .aurora-blob.green {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+            top: 40%;
+            left: 30%;
+            animation-delay: -10s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* App Container */
+        .app {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            margin-bottom: 24px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-item {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2));
+            color: #fff;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 16px;
+            color: #fff;
+            width: 220px;
+            font-size: 14px;
+        }
+        .search-box::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .date-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 400px;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+        }
+
+        /* Glass Card */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Hero Card */
+        .hero-card {
+            grid-column: span 2;
+            grid-row: span 2;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+        .hero-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+        }
+        .hero-value {
+            font-size: 72px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+        .hero-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #10b981;
+        }
+        .hero-chart {
+            flex: 1;
+            margin-top: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Stat Cards */
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .stat-icon.pink { background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(236, 72, 153, 0.1)); }
+        .stat-icon.purple { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1)); }
+        .stat-icon.cyan { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1)); }
+        .stat-icon.emerald { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1)); }
+        .stat-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .stat-badge.up { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .stat-badge.down { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .stat-spark {
+            height: 50px;
+            margin-top: auto;
+        }
+
+        /* Right Column */
+        .right-col {
+            grid-row: span 3;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Gauge Card */
+        .gauge-card {
+            text-align: center;
+            padding: 32px;
+        }
+        .gauge-title {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 24px;
+        }
+        .gauge-container {
+            position: relative;
+            width: 200px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        .gauge-value {
+            font-size: 48px;
+            font-weight: 700;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gauge-status {
+            font-size: 13px;
+            color: #f59e0b;
+            margin-top: 8px;
+        }
+
+        /* Regional Card */
+        .regional-card {
+            flex: 1;
+        }
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .region-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .region-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .region-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .region-dot.pink { background: #ec4899; }
+        .region-dot.purple { background: #8b5cf6; }
+        .region-dot.cyan { background: #06b6d4; }
+        .region-dot.emerald { background: #10b981; }
+        .region-name {
+            flex: 1;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .region-bar-wrap {
+            width: 100px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .region-bar {
+            height: 100%;
+            border-radius: 3px;
+        }
+        .region-bar.pink { background: linear-gradient(90deg, #ec4899, #f472b6); }
+        .region-bar.purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .region-bar.cyan { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+        .region-bar.emerald { background: linear-gradient(90deg, #10b981, #34d399); }
+        .region-value {
+            font-size: 14px;
+            font-weight: 600;
+            width: 60px;
+            text-align: right;
+        }
+
+        /* Rates Card */
+        .rates-card {
+            padding: 24px;
+        }
+        .rate-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .rate-row:last-child { border-bottom: none; }
+        .rate-info { }
+        .rate-type {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .rate-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+        .rate-data { text-align: right; }
+        .rate-value {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .rate-change {
+            font-size: 12px;
+            color: #10b981;
+        }
+
+        /* Bottom Row */
+        .bottom-row {
+            grid-column: span 3;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .mini-stat {
+            text-align: center;
+            padding: 20px;
+        }
+        .mini-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+        }
+        .mini-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .mini-change {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .mini-change.up { color: #10b981; }
+        .mini-change.down { color: #f43f5e; }
+        .mini-change.neutral { color: rgba(255, 255, 255, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="aurora-bg">
+        <div class="aurora-blob pink"></div>
+        <div class="aurora-blob blue"></div>
+        <div class="aurora-blob green"></div>
+    </div>
+
+    <div class="app">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">MacroEdge</div>
+            </div>
+            <nav class="nav">
+                <div class="nav-item active">Dashboard</div>
+                <div class="nav-item">Analytics</div>
+                <div class="nav-item">Regional</div>
+                <div class="nav-item">Reports</div>
+            </nav>
+            <div class="header-actions">
+                <input type="text" class="search-box" placeholder="Search metrics...">
+                <div class="date-pill">Feb 10, 2026</div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Hero Card -->
+            <div class="glass hero-card">
+                <div class="hero-label">National Median Home Price</div>
+                <div class="hero-value">$428,700</div>
+                <div class="hero-change">
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                    +4.2% from last year
+                </div>
+                <div class="hero-chart">
+                    <canvas id="heroChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="glass stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon pink">🏗️</div>
+                    <div class="stat-badge up">+2.8%</div>
+                </div>
+                <div class="stat-label">Housing Starts</div>
+                <div class="stat-value">1.42M</div>
+                <div class="stat-spark"><canvas id="spark1"></canvas></div>
+            </div>
+
+            <div class="glass stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon purple">📋</div>
+                    <div class="stat-badge down">-1.3%</div>
+                </div>
+                <div class="stat-label">Building Permits</div>
+                <div class="stat-value">1.51M</div>
+                <div class="stat-spark"><canvas id="spark2"></canvas></div>
+            </div>
+
+            <div class="right-col">
+                <!-- Gauge -->
+                <div class="glass gauge-card">
+                    <div class="gauge-title">Housing Affordability Index</div>
+                    <div class="gauge-container">
+                        <canvas id="gaugeChart"></canvas>
+                    </div>
+                    <div class="gauge-value">92.4</div>
+                    <div class="gauge-status">Moderately Stressed</div>
+                </div>
+
+                <!-- Regional -->
+                <div class="glass regional-card">
+                    <div class="card-title">Regional Distribution</div>
+                    <div class="region-list">
+                        <div class="region-item">
+                            <div class="region-dot pink"></div>
+                            <div class="region-name">West</div>
+                            <div class="region-bar-wrap"><div class="region-bar pink" style="width: 100%"></div></div>
+                            <div class="region-value">$598K</div>
+                        </div>
+                        <div class="region-item">
+                            <div class="region-dot purple"></div>
+                            <div class="region-name">Northeast</div>
+                            <div class="region-bar-wrap"><div class="region-bar purple" style="width: 81%"></div></div>
+                            <div class="region-value">$485K</div>
+                        </div>
+                        <div class="region-item">
+                            <div class="region-dot cyan"></div>
+                            <div class="region-name">South</div>
+                            <div class="region-bar-wrap"><div class="region-bar cyan" style="width: 63%"></div></div>
+                            <div class="region-value">$378K</div>
+                        </div>
+                        <div class="region-item">
+                            <div class="region-dot emerald"></div>
+                            <div class="region-name">Midwest</div>
+                            <div class="region-bar-wrap"><div class="region-bar emerald" style="width: 52%"></div></div>
+                            <div class="region-value">$312K</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rates -->
+                <div class="glass rates-card">
+                    <div class="card-title">Current Rates</div>
+                    <div class="rate-row">
+                        <div class="rate-info">
+                            <div class="rate-type">30-Year Fixed</div>
+                            <div class="rate-desc">Average rate</div>
+                        </div>
+                        <div class="rate-data">
+                            <div class="rate-value">6.42%</div>
+                            <div class="rate-change">↓ -0.15 pts</div>
+                        </div>
+                    </div>
+                    <div class="rate-row">
+                        <div class="rate-info">
+                            <div class="rate-type">15-Year Fixed</div>
+                            <div class="rate-desc">Average rate</div>
+                        </div>
+                        <div class="rate-data">
+                            <div class="rate-value">5.68%</div>
+                            <div class="rate-change">↓ -0.12 pts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More Stats -->
+            <div class="glass stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon cyan">📈</div>
+                    <div class="stat-badge up">+5.1%</div>
+                </div>
+                <div class="stat-label">Case-Shiller Index</div>
+                <div class="stat-value">318.4</div>
+                <div class="stat-spark"><canvas id="spark3"></canvas></div>
+            </div>
+
+            <div class="glass stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon emerald">🏡</div>
+                    <div class="stat-badge up">+3.2%</div>
+                </div>
+                <div class="stat-label">New Home Sales</div>
+                <div class="stat-value">682K</div>
+                <div class="stat-spark"><canvas id="spark4"></canvas></div>
+            </div>
+
+            <!-- Bottom Row -->
+            <div class="bottom-row">
+                <div class="glass mini-stat">
+                    <div class="mini-label">Existing Sales</div>
+                    <div class="mini-value">4.09M</div>
+                    <div class="mini-change down">-1.8%</div>
+                </div>
+                <div class="glass mini-stat">
+                    <div class="mini-label">Inventory</div>
+                    <div class="mini-value">3.2 mo</div>
+                    <div class="mini-change up">+0.3</div>
+                </div>
+                <div class="glass mini-stat">
+                    <div class="mini-label">Days on Market</div>
+                    <div class="mini-value">28</div>
+                    <div class="mini-change neutral">±0</div>
+                </div>
+                <div class="glass mini-stat">
+                    <div class="mini-label">Ownership Rate</div>
+                    <div class="mini-value">65.8%</div>
+                    <div class="mini-change up">+0.1%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        Chart.defaults.color = 'rgba(255, 255, 255, 0.5)';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+        // Hero Chart
+        const heroCtx = document.getElementById('heroChart').getContext('2d');
+        const heroGradient = heroCtx.createLinearGradient(0, 0, 0, 200);
+        heroGradient.addColorStop(0, 'rgba(236, 72, 153, 0.3)');
+        heroGradient.addColorStop(1, 'rgba(236, 72, 153, 0)');
+
+        new Chart(heroCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    data: [395, 398, 405, 412, 418, 422, 425, 428, 430, 428, 427, 428.7],
+                    borderColor: '#ec4899',
+                    backgroundColor: heroGradient,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { display: false },
+                    x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)' } }
+                }
+            }
+        });
+
+        // Sparklines
+        const sparkConfig = (data, color) => ({
+            type: 'line',
+            data: {
+                labels: data.map((_, i) => i),
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+
+        new Chart(document.getElementById('spark1'), sparkConfig([1.32, 1.35, 1.38, 1.36, 1.39, 1.41, 1.40, 1.38, 1.36, 1.35, 1.38, 1.42], '#ec4899'));
+        new Chart(document.getElementById('spark2'), sparkConfig([1.48, 1.52, 1.55, 1.58, 1.56, 1.54, 1.52, 1.50, 1.53, 1.55, 1.53, 1.51], '#8b5cf6'));
+        new Chart(document.getElementById('spark3'), sparkConfig([290, 295, 300, 305, 308, 312, 315, 318, 320, 318, 316, 318], '#06b6d4'));
+        new Chart(document.getElementById('spark4'), sparkConfig([620, 635, 650, 648, 660, 670, 665, 675, 680, 678, 680, 682], '#10b981'));
+
+        // Gauge
+        new Chart(document.getElementById('gaugeChart'), {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [92.4, 57.6],
+                    backgroundColor: [
+                        (ctx) => {
+                            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 200, 0);
+                            gradient.addColorStop(0, '#f59e0b');
+                            gradient.addColorStop(1, '#f97316');
+                            return gradient;
+                        },
+                        'rgba(255, 255, 255, 0.05)'
+                    ],
+                    borderWidth: 0,
+                    circumference: 180,
+                    rotation: 270
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '80%',
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+    </script>
+</body>
+</html>
