@@ -343,6 +343,64 @@ const getCityHeatColor = (price: number, prices: number[]) => {
   return "bg-red-500/20 border-red-500/30 text-red-400";
 };
 
+interface CityHistoricalDataPoint {
+  date: string;
+  medianPrice: number;
+  yoyChange: number;
+  inventory: number;
+  daysOnMarket: number;
+}
+
+const generateCityHistoricalData = (city: CityData): Record<TimePeriod, CityHistoricalDataPoint[]> => {
+  const base = city.medianPrice;
+  const yoy = city.yoyChange;
+  const inv = city.inventory;
+  const dom = city.daysOnMarket;
+
+  return {
+    "1Y": [
+      { date: "Mar '25", medianPrice: Math.round(base * 0.96), yoyChange: yoy + 0.5, inventory: inv + 0.3, daysOnMarket: dom + 4 },
+      { date: "Apr '25", medianPrice: Math.round(base * 0.965), yoyChange: yoy + 0.3, inventory: inv + 0.2, daysOnMarket: dom + 3 },
+      { date: "May '25", medianPrice: Math.round(base * 0.97), yoyChange: yoy + 0.2, inventory: inv + 0.1, daysOnMarket: dom + 2 },
+      { date: "Jun '25", medianPrice: Math.round(base * 0.975), yoyChange: yoy + 0.1, inventory: inv, daysOnMarket: dom + 1 },
+      { date: "Jul '25", medianPrice: Math.round(base * 0.98), yoyChange: yoy, inventory: inv - 0.1, daysOnMarket: dom },
+      { date: "Aug '25", medianPrice: Math.round(base * 0.985), yoyChange: yoy - 0.1, inventory: inv - 0.1, daysOnMarket: dom - 1 },
+      { date: "Sep '25", medianPrice: Math.round(base * 0.99), yoyChange: yoy - 0.2, inventory: inv - 0.2, daysOnMarket: dom - 1 },
+      { date: "Oct '25", medianPrice: Math.round(base * 0.992), yoyChange: yoy - 0.2, inventory: inv - 0.1, daysOnMarket: dom - 2 },
+      { date: "Nov '25", medianPrice: Math.round(base * 0.995), yoyChange: yoy - 0.1, inventory: inv, daysOnMarket: dom - 1 },
+      { date: "Dec '25", medianPrice: Math.round(base * 0.998), yoyChange: yoy, inventory: inv, daysOnMarket: dom },
+      { date: "Jan '26", medianPrice: Math.round(base * 0.999), yoyChange: yoy, inventory: inv, daysOnMarket: dom },
+      { date: "Feb '26", medianPrice: base, yoyChange: yoy, inventory: inv, daysOnMarket: dom },
+    ],
+    "5Y": [
+      { date: "2021", medianPrice: Math.round(base * 0.75), yoyChange: 12.5, inventory: inv + 1.2, daysOnMarket: dom + 15 },
+      { date: "2022", medianPrice: Math.round(base * 0.88), yoyChange: 15.2, inventory: inv + 0.8, daysOnMarket: dom + 8 },
+      { date: "2023", medianPrice: Math.round(base * 0.92), yoyChange: 4.5, inventory: inv + 0.5, daysOnMarket: dom + 5 },
+      { date: "2024", medianPrice: Math.round(base * 0.96), yoyChange: yoy + 1.2, inventory: inv + 0.2, daysOnMarket: dom + 2 },
+      { date: "2025", medianPrice: Math.round(base * 0.99), yoyChange: yoy + 0.5, inventory: inv, daysOnMarket: dom },
+      { date: "2026", medianPrice: base, yoyChange: yoy, inventory: inv, daysOnMarket: dom },
+    ],
+    "10Y": [
+      { date: "2016", medianPrice: Math.round(base * 0.48), yoyChange: 5.2, inventory: inv + 2.5, daysOnMarket: dom + 28 },
+      { date: "2018", medianPrice: Math.round(base * 0.56), yoyChange: 7.2, inventory: inv + 1.9, daysOnMarket: dom + 20 },
+      { date: "2020", medianPrice: Math.round(base * 0.65), yoyChange: 8.2, inventory: inv + 1.4, daysOnMarket: dom + 16 },
+      { date: "2022", medianPrice: Math.round(base * 0.88), yoyChange: 15.2, inventory: inv + 0.8, daysOnMarket: dom + 8 },
+      { date: "2024", medianPrice: Math.round(base * 0.96), yoyChange: yoy + 1.2, inventory: inv + 0.2, daysOnMarket: dom + 2 },
+      { date: "2026", medianPrice: base, yoyChange: yoy, inventory: inv, daysOnMarket: dom },
+    ],
+    "Max": [
+      { date: "1995", medianPrice: Math.round(base * 0.18), yoyChange: 3.2, inventory: 6.5, daysOnMarket: 85 },
+      { date: "2000", medianPrice: Math.round(base * 0.25), yoyChange: 6.5, inventory: 4.5, daysOnMarket: 62 },
+      { date: "2007", medianPrice: Math.round(base * 0.52), yoyChange: 8.2, inventory: 4.2, daysOnMarket: 52 },
+      { date: "2009", medianPrice: Math.round(base * 0.38), yoyChange: -12.5, inventory: 8.5, daysOnMarket: 95 },
+      { date: "2015", medianPrice: Math.round(base * 0.45), yoyChange: 5.8, inventory: 4.5, daysOnMarket: 55 },
+      { date: "2020", medianPrice: Math.round(base * 0.65), yoyChange: 8.2, inventory: inv + 1.4, daysOnMarket: dom + 16 },
+      { date: "2024", medianPrice: Math.round(base * 0.96), yoyChange: yoy + 1.2, inventory: inv + 0.2, daysOnMarket: dom + 2 },
+      { date: "2026", medianPrice: base, yoyChange: yoy, inventory: inv, daysOnMarket: dom },
+    ],
+  };
+};
+
 const stateData: StateData[] = [
   { state: "California", abbr: "CA", medianPrice: 785000, avgPrice: 895000, pricePerSqFt: 485, yoyChange: 4.2, inventory: 2.1, homesSold: 385000, population: 39.5 },
   { state: "Texas", abbr: "TX", medianPrice: 335000, avgPrice: 385000, pricePerSqFt: 165, yoyChange: 1.8, inventory: 3.8, homesSold: 425000, population: 30.0 },
@@ -373,6 +431,8 @@ export default function StateDataTable() {
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedState, setSelectedState] = useState<StateData | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("1Y");
+  const [selectedCity, setSelectedCity] = useState<CityData | null>(null);
+  const [cityTimePeriod, setCityTimePeriod] = useState<TimePeriod>("1Y");
 
   const sortedData = [...stateData].sort((a, b) => {
     const diff = a[sortKey] - b[sortKey];
@@ -397,9 +457,19 @@ export default function StateDataTable() {
     setSelectedState(null);
   };
 
+  const handleCityClick = (city: CityData) => {
+    setSelectedCity(city);
+    setCityTimePeriod("1Y");
+  };
+
+  const closeCityModal = () => {
+    setSelectedCity(null);
+  };
+
   const historicalData = selectedState ? generateStateHistoricalData(selectedState) : null;
   const cities = selectedState ? stateCities[selectedState.abbr] || [] : [];
   const cityPrices = cities.map(c => c.medianPrice);
+  const cityHistoricalData = selectedCity ? generateCityHistoricalData(selectedCity) : null;
 
   const SortHeader = ({ label, sortKeyName, className = "" }: { label: string; sortKeyName: SortKey; className?: string }) => (
     <th
@@ -614,7 +684,8 @@ export default function StateDataTable() {
                     return (
                       <div
                         key={city.city}
-                        className={`${heatColor} border rounded-xl p-3 transition-all hover:scale-[1.02]`}
+                        onClick={() => handleCityClick(city)}
+                        className={`${heatColor} border rounded-xl p-3 transition-all hover:scale-[1.02] cursor-pointer hover:ring-2 hover:ring-white/20`}
                       >
                         <div className="font-semibold text-sm text-white truncate">{city.city}</div>
                         <div className="text-xl font-bold mt-1">${city.medianPrice}K</div>
@@ -636,6 +707,134 @@ export default function StateDataTable() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* City Historical Data Modal */}
+      {selectedCity && cityHistoricalData && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+          onClick={closeCityModal}
+        >
+          <div
+            className="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-slate-900 border-b border-slate-700 p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">{selectedCity.city}</h2>
+                <p className="text-slate-400 mt-1">Historical housing market data</p>
+              </div>
+              <button
+                onClick={closeCityModal}
+                className="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 border-b border-slate-800">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="bg-slate-800/50 rounded-xl p-4">
+                  <div className="text-sm text-slate-400">Median Price</div>
+                  <div className="text-2xl font-bold text-indigo-400">${selectedCity.medianPrice}K</div>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-4">
+                  <div className="text-sm text-slate-400">YoY Change</div>
+                  <div className={`text-2xl font-bold ${selectedCity.yoyChange > 0 ? "text-green-400" : "text-red-400"}`}>
+                    {selectedCity.yoyChange > 0 ? "+" : ""}{selectedCity.yoyChange}%
+                  </div>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-4">
+                  <div className="text-sm text-slate-400">Inventory</div>
+                  <div className="text-2xl font-bold text-cyan-400">{selectedCity.inventory} mo</div>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-4">
+                  <div className="text-sm text-slate-400">Days on Market</div>
+                  <div className="text-2xl font-bold text-orange-400">{selectedCity.daysOnMarket}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 pt-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Price History</h3>
+              <div className="flex gap-1 bg-slate-800/50 rounded-lg p-1">
+                {(["1Y", "5Y", "10Y", "Max"] as TimePeriod[]).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setCityTimePeriod(p)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                      cityTimePeriod === p
+                        ? "bg-indigo-500 text-white"
+                        : "text-slate-400 hover:text-white hover:bg-slate-700"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={cityHistoricalData[cityTimePeriod]}>
+                    <defs>
+                      <linearGradient id="colorCityPriceState" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}K`} domain={["dataMin - 20", "dataMax + 20"]} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #6366f1", borderRadius: "12px", padding: "12px" }}
+                      formatter={(value) => [`$${value}K`, "Median Price"]}
+                      labelStyle={{ color: "#fff" }}
+                      itemStyle={{ color: "#e2e8f0" }}
+                    />
+                    <Area type="monotone" dataKey="medianPrice" stroke="#6366f1" strokeWidth={2} fill="url(#colorCityPriceState)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="px-6 pb-6">
+              <h3 className="text-lg font-semibold mb-4">Market Indicators</h3>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={cityHistoricalData[cityTimePeriod]}>
+                    <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #6366f1", borderRadius: "12px", padding: "12px" }}
+                      labelStyle={{ color: "#fff" }}
+                      itemStyle={{ color: "#e2e8f0" }}
+                    />
+                    <Line type="monotone" dataKey="yoyChange" name="YoY Change (%)" stroke="#22c55e" strokeWidth={2} dot={cityTimePeriod !== "1Y"} />
+                    <Line type="monotone" dataKey="inventory" name="Inventory (mo)" stroke="#06b6d4" strokeWidth={2} dot={cityTimePeriod !== "1Y"} />
+                    <Line type="monotone" dataKey="daysOnMarket" name="Days on Market" stroke="#f97316" strokeWidth={2} dot={cityTimePeriod !== "1Y"} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex justify-center gap-6 mt-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <span className="text-xs text-slate-400">YoY Change</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-cyan-500" />
+                  <span className="text-xs text-slate-400">Inventory</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                  <span className="text-xs text-slate-400">Days on Market</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
